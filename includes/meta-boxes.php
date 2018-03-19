@@ -80,6 +80,17 @@ function badgeos_custom_metaboxes( array $meta_boxes ) {
 				'type' => 'text_only',
 			),
 			array(
+				'name' => __( 'Rewarding Option', 'badgeos' ),
+				'desc' => ' '.__( 'Choose whether to reward Point Only, Badges Only or Points & Badges both.', 'badgeos' ),
+				'id'   => $prefix . 'reward_options',
+				'type' => 'select',
+                'options' => apply_filters( 'badgeos_achievement_rewarding_options', array(
+                    array( 'name' => __( 'Both', 'badgeos' ),           'value' => 'both' ),
+                    array( 'name' => __( 'Points Only', 'badgeos' ),    'value' => 'points' ),
+                    array( 'name' => __( 'Badges Only', 'badgeos' ),    'value' => 'badges' ),
+                ) )
+			),
+			array(
 				'name' => __( 'Points Awarded', 'badgeos' ),
 				'desc' => ' '.__( 'Points awarded for earning this achievement (optional). Leave empty if no points are awarded.', 'badgeos' ),
 				'id'   => $prefix . 'points',

@@ -59,23 +59,47 @@ function badgeos_check_achievement_completion_for_user( $achievement_id = 0, $us
 	if ( ! $site_id )
 		$site_id = get_current_blog_id();
 
-	// If the user has not already earned the achievement...
-	if ( ! badgeos_get_user_achievements( array( 'user_id' => absint( $user_id ), 'achievement_id' => absint( $achievement_id ), 'since' => 1 + badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) ) ) {
+    $badge_id = $achievement_id;
+    if( 'step' == get_post_type( $achievement_id ) ) {
+        $badge = badgeos_get_parent_of_achievement( $achievement_id );
+        $badge_id = $badge->ID;
+    }
 
-		// Grab our required achievements for this achievement
-		$required_achievements = badgeos_get_required_achievements_for_achievement( $achievement_id );
+    if( 'points' == get_post_meta( $badge_id,'_badgeos_reward_options', true ) ) {
+        $point_achievements = get_user_meta( $user_id, '_awarded_points_achievements', true );
+        if( is_array( $point_achievements ) ) {
+            foreach( $point_achievements as $point_achievement ) {
+                if( $badge_id == $point_achievement['achievement_id'] ) {
+                    $admin_count = get_post_meta( $badge_id, '_badgeos_maximum_earnings', true );
+                    if( -1 != $admin_count ) {
+                        if( $point_achievement['count'] >= $admin_count ) {
+                            $return = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    } else {
 
-		// If we have requirements, loop through each and make sure they've been completed
-		if ( is_array( $required_achievements ) && ! empty( $required_achievements ) ) {
-			foreach ( $required_achievements as $requirement ) {
-				// Has the user already earned the requirement?
-				if ( ! badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $requirement->ID, 'since' => badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) ) ) {
-					$return = false;
-					break;
-				}
-			}
-		}
-	}
+        // If the user has not already earned the achievement...
+        if ( ! badgeos_get_user_achievements( array( 'user_id' => absint( $user_id ), 'achievement_id' => absint( $achievement_id ), 'since' => 1 + badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) ) ) {
+
+            // Grab our required achievements for this achievement
+            $required_achievements = badgeos_get_required_achievements_for_achievement( $achievement_id );
+
+            // If we have requirements, loop through each and make sure they've been completed
+            if ( is_array( $required_achievements ) && ! empty( $required_achievements ) ) {
+                foreach ( $required_achievements as $requirement ) {
+                    // Has the user already earned the requirement?
+                    if ( ! badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $requirement->ID, 'since' => badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) ) ) {
+                        $return = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 	// Available filter to support custom earning rules
 	return apply_filters( 'user_deserves_achievement', $return, $user_id, $achievement_id, $this_trigger, $site_id, $args );
@@ -92,6 +116,32 @@ function badgeos_check_achievement_completion_for_user( $achievement_id = 0, $us
  * @return bool                    Our possibly updated earning status
  */
 function badgeos_user_meets_points_requirement( $return = false, $user_id = 0, $achievement_id = 0 ) {
+
+    $badge_id = $achievement_id;
+    if( 'step' == get_post_type( $achievement_id ) ) {
+        $badge = badgeos_get_parent_of_achievement( $achievement_id );
+        $badge_id = $badge->ID;
+    }
+
+    if( 'points' == get_post_meta( $badge_id,'_badgeos_reward_options', true ) ) {
+        $point_achievements = get_user_meta( $user_id, '_awarded_points_achievements', true );
+        if( is_array( $point_achievements ) ) {
+            foreach( $point_achievements as $point_achievement ) {
+                if( $badge_id == $point_achievement['achievement_id'] ) {
+                    $admin_count = get_post_meta( $badge_id, '_badgeos_maximum_earnings', true );
+                    if( -1 == $admin_count ) {
+                        return true;
+                    } else {
+                        if( $point_achievement['count'] >= $admin_count ) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	// First, see if the achievement requires a minimum amount of points
 	if ( 'points' == get_post_meta( $achievement_id, '_badgeos_earned_by', true ) ) {
@@ -146,39 +196,47 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 	if ( ! $site_id )
 		$site_id = get_current_blog_id();
 
-	// Setup our achievement object
-	$achievement_object = badgeos_build_achievement_object( $achievement_id );
+    if( 'step' == get_post_type( $achievement_id ) ) {
+        $badge = badgeos_get_parent_of_achievement( $achievement_id );
+        $achievement_id = $badge->ID;
+    }
 
-	// Update user's earned achievements
-	badgeos_update_user_achievements( array( 'user_id' => $user_id, 'new_achievements' => array( $achievement_object ) ) );
+    // Setup our achievement object
+    $achievement_object = badgeos_build_achievement_object( $achievement_id );
 
-	// Log the earning of the award
-	badgeos_post_log_entry( $achievement_id, $user_id );
+    if( 'points' != get_post_meta( $achievement_id,'_badgeos_reward_options', true ) ) {
 
-	// Available hook for unlocking any achievement of this achievement type
-	do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
+        // Update user's earned achievements
+        badgeos_update_user_achievements( array( 'user_id' => $user_id, 'new_achievements' => array( $achievement_object ) ) );
 
-	// Patch for WordPress to support recursive actions, specifically for badgeos_award_achievement
-	// Because global iteration is fun, assuming we can get this fixed for WordPress 3.9
-	$is_recursed_filter = ( 'badgeos_award_achievement' == current_filter() );
-	$current_key = null;
+        // Log the earning of the award
+        badgeos_post_log_entry( $achievement_id, $user_id );
 
-	// Get current position
-	if ( $is_recursed_filter ) {
-		$current_key = key( $wp_filter[ 'badgeos_award_achievement' ] );
-	}
+        // Available hook for unlocking any achievement of this achievement type
+        do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
+
+    }
+
+    // Patch for WordPress to support recursive actions, specifically for badgeos_award_achievement
+    // Because global iteration is fun, assuming we can get this fixed for WordPress 3.9
+    $is_recursed_filter = ( 'badgeos_award_achievement' == current_filter() );
+    $current_key = null;
+
+    // Get current position
+    if ( $is_recursed_filter ) {
+        $current_key = key( $wp_filter[ 'badgeos_award_achievement' ] );
+    }
 
 	// Available hook to do other things with each awarded achievement
 	do_action( 'badgeos_award_achievement', $user_id, $achievement_id, $this_trigger, $site_id, $args );
 
-	if ( $is_recursed_filter ) {
-		reset( $wp_filter[ 'badgeos_award_achievement' ] );
+    if ($is_recursed_filter) {
+        reset($wp_filter['badgeos_award_achievement']);
 
-		while ( key( $wp_filter[ 'badgeos_award_achievement' ] ) !== $current_key ) {
-			next( $wp_filter[ 'badgeos_award_achievement' ] );
-		}
-	}
-
+        while (key($wp_filter['badgeos_award_achievement']) !== $current_key) {
+            next($wp_filter['badgeos_award_achievement']);
+        }
+    }
 }
 
 /**

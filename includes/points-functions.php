@@ -54,13 +54,41 @@ function badgeos_update_users_points( $user_id = 0, $new_points = 0, $admin_id =
 	$total_points = max( $current_points + $new_points, 0 );
 	update_user_meta( $user_id, '_badgeos_points', $total_points );
 
+	$point_achievements = get_user_meta( $user_id, '_awarded_points_achievements', true );
+    $f_point_achievements = array();
+
+	if( is_array( $point_achievements ) ) {
+
+        if( ! array_key_exists( $achievement_id, $point_achievements ) ) {
+            $point_achievements[$achievement_id] = array(
+                'achievement_id'    =>  $achievement_id,
+                'count'    =>  1,
+            );
+        } else {
+            $point_achievements[$achievement_id] = array(
+                'achievement_id'    =>  $achievement_id,
+                'count'    => $point_achievements[$achievement_id]['count'] +  1,
+            );
+        }
+
+        update_user_meta( $user_id, '_awarded_points_achievements', $point_achievements );
+    } else {
+	    if( $achievement_id ) {
+            $f_point_achievements[$achievement_id] = array(
+                'achievement_id'    =>  $achievement_id,
+                'count'    =>  1,
+            );
+            update_user_meta( $user_id, '_awarded_points_achievements', $f_point_achievements );
+        }
+    }
+
 	// Available action for triggering other processes
 	do_action( 'badgeos_update_users_points', $user_id, $new_points, $total_points, $admin_id, $achievement_id );
 
 	// Maybe award some points-based badges
 	foreach ( badgeos_get_points_based_achievements() as $achievement ) {
 		badgeos_maybe_award_achievement_to_user( $achievement->ID, $user_id );
-	}
+  	}
 
 	return $total_points;
 }
@@ -109,10 +137,18 @@ add_action( 'badgeos_update_users_points', 'badgeos_log_users_points', 10, 5 );
  */
 function badgeos_award_user_points( $user_id = 0, $achievement_id = 0 ) {
 
-	// Grab our points from the provided post
-	$points = absint( get_post_meta( $achievement_id, '_badgeos_points', true ) );
+    $badge_id = $achievement_id;
+    if( 'step' == get_post_type( $achievement_id ) ) {
+        $badge = badgeos_get_parent_of_achievement( $achievement_id );
+        $badge_id = $badge->ID;
+    }
 
-	if ( ! empty( $points ) )
-		return badgeos_update_users_points( $user_id, $points, false, $achievement_id );
+    if( 'badges' != get_post_meta( $badge_id,'_badgeos_reward_options', true ) ) {
+        // Grab our points from the provided post
+        $points = absint( get_post_meta( $achievement_id, '_badgeos_points', true ) );
+
+        if ( ! empty( $points ) )
+            return badgeos_update_users_points( $user_id, $points, false, $achievement_id );
+    }
 }
 add_action( 'badgeos_award_achievement', 'badgeos_award_user_points', 999, 2 );
