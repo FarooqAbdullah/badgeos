@@ -1,0 +1,27 @@
+.badgeos-spinner {
+	display: none;
+}
+.widget-achievements-listing li {
+	display: block;
+	position: relative;
+	padding: 0 0 5px;
+	min-height: 25px;
+}
+.widget-achievements-listing li.has-thumb {
+    width: 100%;
+    float: left;
+    display: table;
+}
+.widget-achievements-listing .badgeos-item-thumb {
+    float: left;
+    display: table-cell;
+    vertical-align: middle;
+}
+.widget-achievements-listing .widget-badgeos-item-title {
+	font-weight: bold;
+}
+.widget-achievements-listing .has-thumb .widget-badgeos-item-title {
+    width: 75%;
+    display: table-cell;
+    vertical-align: middle;
+}
