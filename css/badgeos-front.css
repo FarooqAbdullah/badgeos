@@ -266,3 +266,61 @@ ul.badgeos-achievement-earners-list li {
     text-align: center;
 
 }
+
+/* .rTable    { display: table; }
+.rTableRow       { display: table-row; }
+.rTableHeading    { display: table-header-group; }
+.rTableBody    { display: table-row-group; }
+.rTableFoot    { display: table-footer-group; }
+.rTableCell, .rTableHead  { display: table-cell; } */
+.evidence_main {
+	display: block;
+	width: 100% !important;
+	border:1px solid #f00;
+	height: auto;
+	overflow: hidden;
+}
+.left_col{
+	float: left;
+	width: 30%;
+    height: auto;
+    overflow: hidden;
+    padding: 3px 3px;
+	min-height: 36px;
+	border:1px solid #000;
+}
+.right_col{
+	float: left;
+	width: 70%;
+    height: auto;
+    overflow: hidden;
+    padding: 3px 3px;
+    min-height: 36px;
+	border:1px solid #000;
+}
+.right_col .title{
+	display: block;
+	font-family: sans-serif;
+	font-size: 20px;
+	color: #3b3c3d;
+	padding: 5px;
+}
+
+.right_col .issue_date{
+	display: block;
+	font-size: 12px;
+	color: #3b3c3d;
+	padding: 5px;
+}
+.right_col p{
+	display: block;
+	font-size: 13px;
+	color: #3b3c3d;
+	padding: 5px;
+}
+.right_col .evidence{
+	display: block;
+	font-size: 12px;
+	color: #3b3c3d;
+	padding: 5px;
+}

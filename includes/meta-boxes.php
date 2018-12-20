@@ -6,7 +6,6 @@
  * @subpackage Admin
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 /**
@@ -48,15 +47,7 @@ function badgeos_achievment_type_metaboxes() {
         'id'      => $prefix . 'show_in_menu',
         'type'	 => 'checkbox',
     ));
-    $cmb_obj->add_field(array(
-        'name' => __( 'Default Badge Image', 'badgeos' ),
-        'desc' => esc_html__(  sprintf(
-            __( 'To set a default image, use the <strong>Default Achievement Image</strong> metabox to the right. For best results, use a square .png file with a transparent background, at least 200x200 pixels. Or, design a badge using the %1$s.', 'badgeos' ),
-            badgeos_get_badge_builder_link( array( 'link_text' => __( 'Credly Badge Builder', 'badgeos' ) ) )
-        ), 'cmb2' ),
-        'id'   => $prefix . 'upload_badge_image_achievement',
-        'type' => 'text_only',
-    ));
+    
 
 }
 add_action( 'cmb2_admin_init', 'badgeos_achievment_type_metaboxes' );
@@ -105,17 +96,7 @@ function badgeos_achievment_metaboxes( ) {
         'priority'   => 'high',
         'show_names' => true, // Show field names on the left
     ) );
-    $cmb_obj->add_field(array(
-        'name' => __( 'Upload Badge Image', 'badgeos' ),
-        'desc' => sprintf(
-            __( '<p>To set an image use the <strong>Achievement Image</strong> metabox to the right. For best results, use a square .png file with a transparent background, at least 200x200 pixels. Or, design a badge using the %1$s.</p><p>If no image is specified, this achievement will default to the %2$s featured image.</p>', 'badgeos' ),
-            badgeos_get_badge_builder_link( array( 'link_text' => __( 'Credly Badge Builder', 'badgeos' ) ) ),
-            '<a href="' . admin_url('edit.php?post_type=achievement-type') . '">' . __( 'Achievement Type\'s', 'badgeos' ) . '</a>'
-
-        ),
-        'id'   => $prefix . 'upload_badge_image_achievement',
-        'type' => 'text_only',
-    ));
+    
     $cmb_obj->add_field(array(
         'name' => __( 'Points Awarded', 'badgeos' ),
         'desc' => ' '.__( 'Points awarded for earning this achievement (optional). Leave empty if no points are awarded.', 'badgeos' ),
@@ -159,7 +140,7 @@ function badgeos_achievment_metaboxes( ) {
     ));
     $cmb_obj->add_field(array(
         'name' => __( 'Congratulations Text', 'badgeos' ),
-        'desc' => __( 'Displayed after achievement is earned. If sending to Credly, a great place for a testimonial for those who complete this achievement.', 'badgeos' ),
+        'desc' => __( 'Displayed after achievement is earned.', 'badgeos' ),
         'id'   => $prefix . 'congratulations_text',
         'type' => 'textarea',
     ));

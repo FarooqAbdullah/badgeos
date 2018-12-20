@@ -6,7 +6,6 @@
  * @subpackage Achievements
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 /**
@@ -576,7 +575,7 @@ add_action( 'trash_post', 'badgeos_bust_points_based_achievements_cache' );
  * Helper function to retrieve an achievement post thumbnail
  *
  * Falls back first to parent achievement type's thumbnail,
- * and finally to a default BadgeOS icon from Credly.
+ * and finally to a default BadgeOS icon.
  *
  * @since  1.0.0
  * @param  integer $post_id    The achievement's post ID
@@ -586,6 +585,7 @@ add_action( 'trash_post', 'badgeos_bust_points_based_achievements_cache' );
  */
 function badgeos_get_achievement_post_thumbnail( $post_id = 0, $image_size = 'badgeos-achievement', $class = 'badgeos-item-thumbnail' ) {
 
+	$directory_url = badgeos_get_directory_url();
 	// Get our badge thumbnail
 	$image = get_the_post_thumbnail( $post_id, $image_size, array( 'class' => $class ) );
 
@@ -596,7 +596,7 @@ function badgeos_get_achievement_post_thumbnail( $post_id = 0, $image_size = 'ba
 		$achievement = get_page_by_path( get_post_type(), OBJECT, 'achievement-type' );
 		$image = is_object( $achievement ) ? get_the_post_thumbnail( $achievement->ID, $image_size, array( 'class' => $class ) ) : false;
 
-		// If we still have no image, use one from Credly
+		// If we still have no image, use default
 		if ( ! $image ) {
 
 			// If we already have an array for image size
@@ -621,7 +621,7 @@ function badgeos_get_achievement_post_thumbnail( $post_id = 0, $image_size = 'ba
 			}
 
 			// Available filter: 'badgeos_default_achievement_post_thumbnail'
-			$image = '<img src="' . apply_filters( 'badgeos_default_achievement_post_thumbnail', 'https://credlyapp.s3.amazonaws.com/badges/af2e834c1e23ab30f1d672579d61c25a_15.png' ) . '" width="' . $image_sizes['width'] . '" height="' . $image_sizes['height'] . '" class="' . $class .'">';
+			$image = '<img src="' . apply_filters( 'badgeos_default_achievement_post_thumbnail', $directory_url. 'images/default_badge.png' ) . '" width="' . $image_sizes['width'] . '" height="' . $image_sizes['height'] . '" class="' . $class .'">';
 
 		}
 	}
@@ -631,23 +631,17 @@ function badgeos_get_achievement_post_thumbnail( $post_id = 0, $image_size = 'ba
 }
 
 /**
- * Attempt to send an achievement to Credly if the user has send enabled
- *
- * @since 1.0.0
+ * Bake a badge if the Badge Baking is enabled
  *
  * @param int $user_id        The ID of the user earning the achievement
  * @param int $achievement_id The ID of the achievement being earned
  */
-function credly_issue_badge( $user_id, $achievement_id ) {
-
-	if ( 'true' === $GLOBALS['badgeos_credly']->user_enabled ) {
-
-		$GLOBALS['badgeos_credly']->post_credly_user_badge( $user_id, $achievement_id );
-
-	}
-
+function badgeos_open_badge_issue_badge( $user_id, $achievement_id, $this_trigger, $site_id, $args, $entry_id ) {
+	
+	$GLOBALS['open_badge']->bake_user_badge( $entry_id, $user_id, $achievement_id );
+	
 }
-add_action( 'badgeos_award_achievement', 'credly_issue_badge', 10, 2 );
+add_action( 'badgeos_award_achievement', 'badgeos_open_badge_issue_badge', 10, 6 );
 
 /**
  * Get an array of all users who have earned a given achievement
@@ -657,20 +651,16 @@ add_action( 'badgeos_award_achievement', 'credly_issue_badge', 10, 2 );
  * @return array                   Array of user objects
  */
 function badgeos_get_achievement_earners( $achievement_id = 0 ) {
-
-	// Grab our earners
-	$earners = new WP_User_Query( array(
-		'meta_key'     => '_badgeos_achievements',
-		'meta_value'   => $achievement_id,
-		'meta_compare' => 'LIKE'
-	) );
-
+   
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'badgeos_achievements';
+	$user_ids = $wpdb->get_results( "SELECT distinct( user_id ) as user_id FROM $table_name WHERE  ID = '".$achievement_id."'" );
+	
 	$earned_users = array();
-	foreach( $earners->results as $earner ) {
-		if ( badgeos_has_user_earned_achievement( $achievement_id, $earner->ID ) ) {
-			$earned_users[] = $earner;
-		}
+	foreach( $user_ids as $rec ) {
+		$earned_users[] = get_user_by( 'ID', $rec->user_id );
 	}
+	
 	// Send back our query results
 	return $earned_users;
 }
@@ -786,7 +776,8 @@ function badgeos_achievement_set_default_thumbnail( $post_id ) {
 		global $wpdb;
 
 		// Grab the default image
-		$file = apply_filters( 'badgeos_default_achievement_post_thumbnail', 'https://credlyapp.s3.amazonaws.com/badges/af2e834c1e23ab30f1d672579d61c25a_15.png' );
+		$directory_url = badgeos_get_directory_url();
+		$file = apply_filters( 'badgeos_default_achievement_post_thumbnail', $directory_url. 'images/default_badge.png' );
 
 		// Check for an existing copy of our default image
 		$file_name = 'af2e834c1e23ab30f1d672579d61c25a_15';
@@ -1050,12 +1041,10 @@ function badgeos_get_unserialized_achievement_metas( $meta_key = '', $original_t
 function badgeos_get_achievement_metas( $meta_key = '', $original_type = '' ) {
 	global $wpdb;
 	return $wpdb->get_results( $wpdb->prepare(
-		"
-		SELECT *
+		"SELECT *
 		FROM   $wpdb->usermeta
 		WHERE  meta_key = %s
-		       AND meta_value LIKE '%%%s%%'
-		",
+		       AND meta_value LIKE '%%%s%%'",
 		$meta_key,
 		$original_type
 	) );

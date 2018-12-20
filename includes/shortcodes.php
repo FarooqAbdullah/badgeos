@@ -6,7 +6,6 @@
  * @subpackage Front-end
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_achievements_list.php' );
@@ -15,7 +14,7 @@ include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_n
 include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_nominations.php' );
 include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_submission.php' );
 include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_submissions.php' );
-include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/credly_assertion_page.php' );
+include( plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shortcodes/badgeos_evidence.php' );
 
 /**
  * Register a new BadgeOS Shortcode

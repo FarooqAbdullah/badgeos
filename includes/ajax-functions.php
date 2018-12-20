@@ -6,7 +6,6 @@
  * @subpackage AJAX
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 // Setup our badgeos AJAX actions

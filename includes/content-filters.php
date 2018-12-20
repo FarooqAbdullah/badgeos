@@ -6,7 +6,6 @@
  * @subpackage Front-end
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 /**
@@ -393,19 +392,10 @@ function badgeos_render_achievement( $achievement = 0 ) {
 	// check if user has earned this Achievement, and add an 'earned' class
 	$earned_status = badgeos_get_user_achievements( array( 'user_id' => $user_ID, 'achievement_id' => absint( $achievement->ID ) ) ) ? 'user-has-earned' : 'user-has-not-earned';
 
-	// Setup our credly classes
-	$credly_class = '';
-	$credly_ID = '';
-
-	// If the achievement is earned and givable, override our credly classes
-	if ( 'user-has-earned' == $earned_status && $giveable = credly_is_achievement_giveable( $achievement->ID, $user_ID ) ) {
-		$credly_class = ' share-credly addCredly';
-		$credly_ID = 'data-credlyid="'. absint( $achievement->ID ) .'"';
-	}
 
 	// Each Achievement
 	$output = '';
-	$output .= '<div id="badgeos-achievements-list-item-' . $achievement->ID . '" class="badgeos-achievements-list-item '. $earned_status . $credly_class .'"'. $credly_ID .'>';
+	$output .= '<div id="badgeos-achievements-list-item-' . $achievement->ID . '" class="badgeos-achievements-list-item '.$earned_status.'">';
 
 		// Achievement Image
 		$output .= '<div class="badgeos-item-image">';
