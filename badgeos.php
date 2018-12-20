@@ -104,6 +104,23 @@ class BadgeOS {
 		// Register scripts
 		wp_register_script( 'badgeos-admin-js', $this->directory_url . 'js/admin.js', array( 'jquery' ) );
 		wp_register_script( 'badgeos-openjs', $this->directory_url . 'js/open_badge.js', array( 'jquery' ), time(), true );
+
+		$badgeos_assertion_page_id 	= get_option( 'badgeos_assertion_url' );
+		$badgeos_assertion_url 		= get_permalink( $badgeos_assertion_page_id );
+		if( !empty( $badgeos_assertion_url ) ) {
+			if( isset($_REQUEST[ 'bg' ]) && !empty( $_REQUEST[ 'bg' ] )) {
+				$badgeos_assertion_url  	= add_query_arg( 'bg', $_REQUEST[ 'bg' ], $badgeos_assertion_url );
+			}
+			if( isset($_REQUEST[ 'eid' ]) && !empty( $_REQUEST[ 'eid' ] )) {
+				$badgeos_assertion_url  	= add_query_arg( 'eid', $_REQUEST[ 'eid' ], $badgeos_assertion_url );
+			}
+			if( isset($_REQUEST[ 'uid' ]) && !empty( $_REQUEST[ 'uid' ] )) {
+				$badgeos_assertion_url  	= add_query_arg( 'uid', $_REQUEST[ 'uid' ], $badgeos_assertion_url );
+			}
+		}
+			
+
+		wp_localize_script( 'badgeos-openjs', 'badgeos_vars', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'assertion_url' => $badgeos_assertion_url ) );
 		
 		wp_register_script( 'badgeos-achievements', $this->directory_url . 'js/badgeos-achievements.js', array( 'jquery' ), '1.1.0', true );
 
@@ -232,27 +249,7 @@ class BadgeOS {
 			update_option( 'badgeos_settings', $badgeos_settings );
 		}
 
-		
-        /**
-         * GamifyWP Credits Table
-         */
-		$table_name = $wpdb->prefix . "badgeos_achievements";
-		if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-			$sql = "CREATE TABLE " . $table_name . " (
-				`entry_id` int(10) NOT NULL AUTO_INCREMENT,
-				`ID` int(10) DEFAULT '0',
-				`achievement_type` varchar(100) DEFAULT NULL,
-				`achievement_title` varchar(100) DEFAULT NULL,
-				`points` int(10) DEFAULT '0',
-				`user_id` int(10) DEFAULT '0',
-				`this_trigger` varchar(100) DEFAULT NULL,
-				`baked_image` varchar(50) DEFAULT NULL,
-				`site_id` int(10) DEFAULT '0',
-				`dateadded` timestamp NULL DEFAULT NULL,						
-				PRIMARY KEY (`id`)
-			);";
-			$wpdb->query( $sql );
-		}
+		badgeos_run_database_script();
 		
 		// Register our post types and flush rewrite rules
 		badgeos_flush_rewrite_rules();
@@ -297,7 +294,10 @@ class BadgeOS {
 	 * Frontend scripts and styles
 	 */
 	function frontend_scripts() {
-
+		wp_enqueue_script('jquery-ui-datepicker');
+		wp_enqueue_script('thickbox');
+        wp_enqueue_style('thickbox');
+		wp_enqueue_script( 'badgeos-openjs' );
         wp_enqueue_script(
             'ck_editor_cdn',
             ('https://cdn.ckeditor.com/4.5.3/standard/ckeditor.js'), false, null, false
@@ -307,7 +307,8 @@ class BadgeOS {
            'custom_script',
             plugins_url( '/js/ckeditor.js' , __FILE__ ),
             false,null,true
-        );
+		);
+		
 	}
 
 	/**
@@ -371,4 +372,35 @@ function badgeos_is_debug_mode() {
 
 	return false;
 
+}
+
+/**
+ * Create tables if not exists
+ *
+ * @return void
+ */
+function badgeos_run_database_script() {
+	
+	global $wpdb;
+
+	/**
+	 * Badgeos Credits Table
+	 */
+	$table_name = $wpdb->prefix . "badgeos_achievements";
+	if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+		$sql = "CREATE TABLE " . $table_name . " (
+			`entry_id` int(10) NOT NULL AUTO_INCREMENT,
+			`ID` int(10) DEFAULT '0',
+			`achievement_type` varchar(100) DEFAULT NULL,
+			`achievement_title` varchar(100) DEFAULT NULL,
+			`points` int(10) DEFAULT '0',
+			`user_id` int(10) DEFAULT '0',
+			`this_trigger` varchar(100) DEFAULT NULL,
+			`baked_image` varchar(50) DEFAULT NULL,
+			`site_id` int(10) DEFAULT '0',
+			`dateadded` timestamp NULL DEFAULT NULL,						
+			PRIMARY KEY (`entry_id`)
+		);";
+		$wpdb->query( $sql );
+	}
 }

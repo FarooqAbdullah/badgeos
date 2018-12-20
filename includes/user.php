@@ -62,7 +62,10 @@ function badgeos_get_user_achievements( $args = array() ) {
         $where .= ' AND dateadded < ' . absint($args['since']);
     }
 
-    global $wpdb;
+	global $wpdb;
+
+	badgeos_run_database_script();
+
     $table_name = $wpdb->prefix . 'badgeos_achievements';
     $user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where" );
 
@@ -120,6 +123,9 @@ function badgeos_update_user_achievements( $args = array() ) {
 	$new_achievements = $args[ 'new_achievements' ];
     if( $new_achievements !== false ) {
 		$new_achievement = $new_achievements[0];
+		
+		badgeos_run_database_script();
+
 		$wpdb->insert($wpdb->prefix.'badgeos_achievements', array(
 			'ID'        			=> $new_achievement->ID,
 			'achievement_type'      => $new_achievement->post_type,

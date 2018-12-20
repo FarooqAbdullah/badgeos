@@ -82,7 +82,8 @@ function badgeos_settings_page() {
 			$log_entries = ( isset( $badgeos_settings['log_entries'] ) ) ? $badgeos_settings['log_entries'] : 'disabled';
 			$ms_show_all_achievements = ( isset( $badgeos_settings['ms_show_all_achievements'] ) ) ? $badgeos_settings['ms_show_all_achievements'] : 'disabled';
 			$remove_data_on_uninstall = ( isset( $badgeos_settings['remove_data_on_uninstall'] ) ) ? $badgeos_settings['remove_data_on_uninstall'] : '';
-
+			$congrat_email_subject = ( isset( $badgeos_settings['congrat_email_subject'] ) ) ? $badgeos_settings['congrat_email_subject'] : '';
+			$congrat_email_body = ( isset( $badgeos_settings['congrat_email_body'] ) ) ? $badgeos_settings['congrat_email_body'] : '';
 			wp_nonce_field( 'badgeos_settings_nonce', 'badgeos_settings_nonce' );
 			?>
 			<table class="form-table">
@@ -140,6 +141,24 @@ function badgeos_settings_page() {
 							<option value="disabled" <?php selected( $log_entries, 'disabled' ); ?>><?php _e( 'Disabled', 'badgeos' ) ?></option>
 							<option value="enabled" <?php selected( $log_entries, 'enabled' ); ?>><?php _e( 'Enabled', 'badgeos' ) ?></option>
 						</select>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><label for="congrat_email_subject"><?php _e( 'Congratulation Email Subject:', 'badgeos' ); ?></label></th>
+					<td>
+						<input type="text" maxlength="200" class="regular-text" id="congrat_email_subject" name="badgeos_settings[congrat_email_subject]" value="<?php echo $congrat_email_subject; ?>" />
+						<p>
+							<b>Shortcodes:</b> [achievement_type], [achievement_title], [points], [baked_image], [user_email], [user_name]
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row"><label for="congrat_email_body"><?php _e( 'Congratulation Email Body:', 'badgeos' ); ?></label></th>
+					<td>
+						<?php wp_editor( $congrat_email_body , 'badgeos_settings[congrat_email_body]', array('media_buttons' => false,'textarea_rows' => 5) ); ?>
+						<p>
+							<b>Shortcodes:</b> [achievement_type], [achievement_title], [points], [baked_image], [user_email], [user_name]
+						</p>
 					</td>
 				</tr>
 				<?php

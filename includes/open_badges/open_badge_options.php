@@ -4,7 +4,7 @@
  *
  * @package BadgeOS
  * @subpackage Open Badge
- * @author Wooninjas
+ * @author Learning Times
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
  */
 
@@ -21,9 +21,64 @@ class open_badge_options {
         add_action( 'add_meta_boxes', array( $this, 'open_badge_metabox_add' ) );
         add_action( 'save_post', array( $this, 'open_badge_metabox_save' ) );
 
+        add_action ( 'wp_ajax_badgeos_validate_open_badge', array( $this, 'badgeos_validate_open_badge' ) );
+        add_action ( 'wp_ajax_nopriv_badgeos_validate_open_badge', array( $this, 'badgeos_validate_open_badge' ) );
+        
+        add_action ( 'wp_ajax_badgeos_validate_revoked', array( $this, 'badgeos_validate_revoked' ) );
+        add_action ( 'wp_ajax_nopriv_badgeos_validate_revoked', array( $this, 'badgeos_validate_revoked' ) );
+        
+        add_action ( 'wp_ajax_badgeos_validate_expiry', array( $this, 'badgeos_validate_expiry' ) );
+        add_action ( 'wp_ajax_nopriv_badgeos_validate_expiry', array( $this, 'badgeos_validate_expiry' ) );
+   }
+    
+    /**
+     * Validate badgeos data
+     */
+    public function badgeos_validate_open_badge() {
+
+        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
+        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        
+        wp_send_json($_REQUEST);
+
     }
     
-     /**
+    /**
+     * Check if badge is not revoked
+     */
+    public function badgeos_validate_revoked() {
+        
+        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
+        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        
+        $mypost = get_post($achievement_id);
+
+        if( $mypost ) {
+            wp_send_json(array( 'status' => 'success', 'message' => __( 'Badge is not revoked', 'badgeos' ) ));
+        } else {
+            wp_send_json(array( 'status' => 'error', 'message' => __( 'Badge is revoked', 'badgeos' ) ));
+        }
+
+        
+
+    }
+
+    /**
+     * Check if badge is not expired
+     */
+    public function badgeos_validate_expiry() {
+        
+        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
+        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+ 
+        wp_send_json($_REQUEST);
+
+    }
+
+    /**
      * Add a Open Badge Settings metabox on the badge CPT
      *
      * @return void

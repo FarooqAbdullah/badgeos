@@ -653,6 +653,9 @@ add_action( 'badgeos_award_achievement', 'badgeos_open_badge_issue_badge', 10, 6
 function badgeos_get_achievement_earners( $achievement_id = 0 ) {
    
 	global $wpdb;
+	
+	badgeos_run_database_script();
+
 	$table_name = $wpdb->prefix . 'badgeos_achievements';
 	$user_ids = $wpdb->get_results( "SELECT distinct( user_id ) as user_id FROM $table_name WHERE  ID = '".$achievement_id."'" );
 	

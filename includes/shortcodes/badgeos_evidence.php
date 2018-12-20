@@ -57,6 +57,8 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
       return;
     
     $output = '';
+    
+    badgeos_run_database_script();
 
     $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
     if( count( $recs ) > 0 ) {
@@ -84,15 +86,27 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                     <div class="user_name"><?php echo $user->display_name;?></div>
                     <div class="social-share">
                         <ul> 
-                            <li>Share on</li> 
-                            <li><a href="#" class="facebook fb share">Facebook</a></li> 
+                            <li>
+                                <!-- Load Facebook SDK for JavaScript -->
+                                <div id="fb-root"></div>
+                                <script>(function(d, s, id) {
+                                    var js, fjs = d.getElementsByTagName(s)[0];
+                                    if (d.getElementById(id)) return;
+                                    js = d.createElement(s); js.id = id;
+                                    js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+                                    fjs.parentNode.insertBefore(js, fjs);
+                                }(document, 'script', 'facebook-jssdk'));</script>
+
+                                <!-- Your share button code -->
+                                <div class="fb-share-button" data-href="http://localhost/openbadge/evidence/?bg=8&eid=32&uid=2" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost/openbadge/evidence/?bg=8&eid=32&uid=2" class="fb-xfbml-parse-ignore">Share</a></div>
+                            </li> 
                             <li><a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Ft.cred.ly%2F04fNRpRiNBqlErKWi5VWIw%3D%3D%24%24%24CCyk1tk4w-vixVMJEFwDHWc0OBIfeRQHQG4kGbcdWLCUBQLyAnm86qrtlDUatEGG%3Fr%3Dhttp%253A%252F%252Fcred.ly%252Fc%252F13581706%26t%3D1545242570%26c%3Dtw&amp;text=U.S.+Election+2016+-+I+Voted%3A+I+received+credit+from+Credly" class="twitter share">Twitter</a></li> 
                             <li><a href="https://www.linkedin.com/cws/share?url=https%3A%2F%2Ft.cred.ly%2FMo_VzjHf7blWozqD0y_cfA%2C%2C%24%24%24KV7Zm7jp1zFNMKWLikDVSAPrQKY3qEh1-KXwS-CEVuApolpON6x6c7Zfz4x4ech6%3Fr%3Dhttps%253A%252F%252Fcredly.com%252Fcredit%252F13581706%26t%3D1545242570%26c%3Dli" class="linkedin share ">LinkedIn</a></li> 
                         </ul>
                     </div>
-                    <ul class="assertion-verification"> 
-                        <li><a id="assertion-verification-trigger" href="#assertion-verification" class="blue-btn dialog-trigger" data-member-badge-id="13581706">Verify</a></li> 
-                    </ul>
+                    <div class="verification"> 
+                        <input id="open-badgeos-verification" href="javascript:;" data-bg="<?php echo $achievement_id;?>" data-eid="<?php echo $entry_id;?>" data-uid="<?php echo $user_id;?>" class="verify-open-badge" value="<?php echo _e( 'Verify', 'badgeos' );?>" type="button" /> 
+                    </div>
                 </div>
                 <div class="right_col">
                     <h3 class="title"><?php echo $rec->achievement_title;?></h3>        
@@ -102,6 +116,9 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                     <div class="issue_date"><?php echo _e( 'Issue Date', 'badgeos' );?>: <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
                     <div class="evidence"><?php echo _e( 'Evidence', 'badgeos' );?>: <a href="javascript:;" onclick="alert('hello')"><?php echo _e( 'View Evidence', 'badgeos' );?></a></div>
                 </div>
+            </div>
+            <div id="open-badge-id">
+                hello world
             </div>
         <?php
 

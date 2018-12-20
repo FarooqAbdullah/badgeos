@@ -4,7 +4,7 @@
  *
  * @package BadgeOS
  * @subpackage Classes
- * @author Wooninjas
+ * @author Learning Times
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
  */
 
@@ -300,6 +300,8 @@ class Open_Badge {
 
 				$filename = ( 'Badge-'.$entry_id . '-' . $achievement_id ).'.png';
 				file_put_contents( $user_badge_directory.$filename ,$result);
+				
+				badgeos_run_database_script();
 
 				$table_name = $wpdb->prefix . 'badgeos_achievements';
 				$data_array = array( 'baked_image' => $filename );
