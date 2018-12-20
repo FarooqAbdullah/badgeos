@@ -6,7 +6,6 @@
  * @subpackage Admin
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 /**
@@ -20,56 +19,54 @@ function badgeos_get_user_achievements( $args = array() ) {
 
 	// Setup our default args
 	$defaults = array(
+		'entry_id'          => false,     // The given user's ID
 		'user_id'          => 0,     // The given user's ID
 		'site_id'          => get_current_blog_id(), // The given site's ID
 		'achievement_id'   => false, // A specific achievement's post ID
 		'achievement_type' => false, // A specific achievement type
-		'since'            => 0,     // A specific timestamp to use in place of $limit_in_days
+		'display' => false
 	);
 	$args = wp_parse_args( $args, $defaults );
 
-	// Use current user's ID if none specified
-	if ( ! $args['user_id'] )
-		$args['user_id'] = get_current_user_id();
+    if( $args['user_id'] == 0 ) {
+        $args['user_id'] = get_current_user_id();
+    }
 
-	// Grab the user's current achievements
-	$achievements = ( $earned_items = get_user_meta( absint( $args['user_id'] ), '_badgeos_achievements', true ) ) ? (array) $earned_items : array();
+    $where = 'user_id = ' . $args['user_id'];
 
-	// If we want all sites (or no specific site), return the full array
-	if ( empty( $achievements ) || empty( $args['site_id']) || 'all' == $args['site_id'] )
-		return $achievements;
+    if( $args['entry_id'] != false ) {
+        $where .= ' AND entry_id = ' . $args['entry_id'];
+    }
+	if( $args['achievement_id'] != false ) {
+        $where .= ' AND ID = ' . $args['achievement_id'];
+    }
+    if( $args['achievement_type'] != false ) {
+        if( is_array( $args['achievement_type'] ) ) {
+            $loop_count = 1;
+            foreach( $args['achievement_type'] as $achievement_type ) {
+                if( $loop_count == 1 ) {
+                    $condition = 'AND';
+                } else {
+                    $condition = 'OR';
+                }
+                $where .= ' ' . $condition . ' achievement_type = "' . $achievement_type . '"';
 
-	if ( !array_key_exists( $args['site_id'], $achievements ) ) { return; }
-	
-	// Otherwise, we only want the specific site's achievements
-	$achievements = $achievements[$args['site_id']];
+                $loop_count++;
+            }
+        } else {
+            $where .= ' AND achievement_type = "' . $args['achievement_type'] . '"';
+        }
+    }
 
-	if ( is_array( $achievements) && ! empty( $achievements ) ) {
-		foreach ( $achievements as $key => $achievement ) {
+    if( $args['since'] != 0 ) {
+        $where .= ' AND dateadded < ' . absint($args['since']);
+    }
 
-			// Drop any achievements earned before our since timestamp
-			if ( absint($args['since']) > $achievement->date_earned )
-				unset($achievements[$key]);
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'badgeos_achievements';
+    $user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where" );
 
-			// Drop any achievements that don't match our achievement ID
-			if ( ! empty( $args['achievement_id'] ) && absint( $args['achievement_id'] ) != $achievement->ID )
-				unset($achievements[$key]);
-
-			// Drop any achievements that don't match our achievement type
-			if ( ! empty( $args['achievement_type'] ) && ( $args['achievement_type'] != $achievement->post_type && ( !is_array( $args['achievement_type'] ) || !in_array( $achievement->post_type, $args['achievement_type'] ) ) ) )
-				unset($achievements[$key]);
-
-			//unset hidden achievements
-			$hidden = badgeos_get_hidden_achievement_by_id( $achievement->ID );
-			if( !empty( $hidden ) && isset($args['display']))
-				unset($achievements[$key]);
-
-		}
-	}
-
-	// Return our $achievements array_values (so our array keys start back at 0), or an empty array
-	return ( is_array( $achievements ) ? array_values( $achievements ) : array());
-
+    return $user_achievements;
 }
 
 /**
@@ -82,7 +79,9 @@ function badgeos_get_user_achievements( $args = array() ) {
  * @return integer|bool       The updated umeta ID on success, false on failure
  */
 function badgeos_update_user_achievements( $args = array() ) {
-
+	
+	global $wpdb;
+	
 	// Setup our default args
 	$defaults = array(
 		'user_id'          => 0,     // The given user's ID
@@ -98,7 +97,17 @@ function badgeos_update_user_achievements( $args = array() ) {
 
 	// Grab our user's achievements
 	$achievements = badgeos_get_user_achievements( array( 'user_id' => absint( $args['user_id'] ), 'site_id' => 'all' ) );
-
+	$new_rows = array();
+	foreach( $achievements as $achievement ) {
+		$object            		= new stdClass;
+		$object->ID        		= $achievement->ID;
+		$object->post_type 		= $achievement->achievement_type;
+		$object->points    		= $achievement->points;
+		$object->trigger   		= $achievement->this_trigger;
+		$object->date_earned 	= strtotime( $achievement->dateadded );
+		$new_rows[] = $object;
+	}
+	
 	// If we don't already have an array stored for this site, create a fresh one
 	if ( !isset( $achievements[$args['site_id']] ) )
 		$achievements[$args['site_id']] = array();
@@ -107,11 +116,28 @@ function badgeos_update_user_achievements( $args = array() ) {
 	if ( is_array( $args['all_achievements'] ) )
 		$achievements[$args['site_id']] = $args['all_achievements'];
 	elseif ( is_array( $args['new_achievements'] ) && ! empty( $args['new_achievements'] ) )
-		$achievements[$args['site_id']] = array_merge( $achievements[$args['site_id']], $args['new_achievements'] );
+		$achievements[$args['site_id']] = array_merge( $new_rows, $args[ 'new_achievements' ] );
+	$new_achievements = $args[ 'new_achievements' ];
+    if( $new_achievements !== false ) {
+		$new_achievement = $new_achievements[0];
+		$wpdb->insert($wpdb->prefix.'badgeos_achievements', array(
+			'ID'        			=> $new_achievement->ID,
+			'achievement_type'      => $new_achievement->post_type,
+			'achievement_title'     => get_the_title( $new_achievement->ID ),
+			'points'             	=> $new_achievement->points,
+			'this_trigger'         	=> $new_achievement->trigger,
+			'user_id'               => absint( $args['user_id'] ),
+			'site_id'               => $args['site_id'],
+			'baked_image'           => '',
+			'dateadded'             => date("Y-m-d h:i:s")
+		));
+		update_user_meta( absint( $args['user_id'] ), '_badgeos_achievements', $achievements);
+		return $wpdb->insert_id;
+	} else {
 
-	// Finally, update our user meta
-	return update_user_meta( absint( $args['user_id'] ), '_badgeos_achievements', $achievements);
-
+		// Finally, update our user meta
+		return update_user_meta( absint( $args['user_id'] ), '_badgeos_achievements', $achievements);
+	}
 }
 
 /**
@@ -137,16 +163,16 @@ function badgeos_user_profile_data( $user = null ) {
 
 	//verify uesr meets minimum role to view earned badges
 	if ( current_user_can( badgeos_get_manager_capability() ) ) {
-
+		
 		$achievements = badgeos_get_user_achievements( array( 'user_id' => absint( $user->ID ) ) );
-
+		
 		echo '<h2>' . __( 'Earned Achievements', 'badgeos' ) . '</h2>';
 
-		echo '<table class="form-table">';
+		echo '<input type="hidden" name="badgeoscp" id="badgeoscp" value="'.badgeos_get_users_points( $user->ID ).'" /><table class="form-table">';
 		echo '<tr>';
 			echo '<th><label for="user_points">' . __( 'Earned Points', 'badgeos' ) . '</label></th>';
 			echo '<td>';
-				echo '<input type="text" name="user_points" id="user_points" value="' . badgeos_get_users_points( $user->ID ) . '" class="regular-text" /><br />';
+				echo '<input type="text" name="user_points" id="badgeos_user_points" value="' . badgeos_get_users_points( $user->ID ) . '" class="regular-text" /><br />';
 				echo '<span class="description">' . __( "The user's points total. Entering a new total will automatically log the change and difference between totals.", 'badgeos' ) . '</span>';
 			echo '</td>';
 		echo '</tr>';
@@ -165,18 +191,19 @@ function badgeos_user_profile_data( $user = null ) {
 
 				// Setup our revoke URL
 				$revoke_url = add_query_arg( array(
-					'action'         => 'revoke',
-					'user_id'        => absint( $user->ID ),
-					'achievement_id' => absint( $achievement->ID ),
+					'action'         	=> 'revoke',
+					'user_id'        	=> absint( $user->ID ),
+					'achievement_id' 	=> absint( $achievement->ID ),
+					'entry_id' 				=> absint( $achievement->entry_id ),
 				) );
 
 				echo '<tr>';
 					echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
-					echo '<td>', edit_post_link( get_the_title( $achievement->ID ), '', '', $achievement->ID ), ' </td>';
+					echo '<td>', edit_post_link( $achievement->achievement_title, '', '', $achievement->ID ), ' </td>';
 					echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';
 				echo '</tr>';
 
-				$achievement_ids[] = $achievement->ID;
+				$achievement_ids[] = $achievement->achievement_id;
 
 			}
 			echo '</table>';
@@ -224,7 +251,7 @@ function badgeos_save_user_profile_fields( $user_id = 0 ) {
 	update_user_meta( $user_id, '_badgeos_can_notify_user', $can_notify );
 
 	// Update our user's points total, but only if edited
-	if ( isset( $_POST['user_points'] ) && $_POST['user_points'] != badgeos_get_users_points( $user_id ) ) {
+	if ( isset( $_POST['user_points'] ) && $_POST['user_points'] != $_POST['badgeoscp'] ) {
 		badgeos_update_users_points( $user_id, absint( $_POST['user_points'] ), get_current_user_id() );
 	}
 
@@ -373,7 +400,7 @@ function badgeos_process_user_data() {
 			check_admin_referer( 'badgeos_revoke_achievement' );
 
 			// Revoke the achievement
-			badgeos_revoke_achievement_from_user( absint( $_GET['achievement_id'] ), absint( $_GET['user_id'] ) );
+			badgeos_revoke_achievement_from_user( absint( $_GET['entry_id'] ), absint( $_GET['achievement_id'] ), absint( $_GET['user_id'] ) );
 
 			// Redirect back to the user editor
 			wp_redirect( add_query_arg( 'user_id', absint( $_GET['user_id'] ), admin_url( 'user-edit.php' ) ) );

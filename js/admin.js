@@ -19,11 +19,6 @@ jQuery(document).ready(function($) {
 
 	}).change();
 
-	$('[href="#show-api-key"]').click( function(event) {
-		event.preventDefault();
-		$('#credly-settings tr, #credly-settings .toggle').toggle();
-	});
-
 	// Throw a warning on Achievement Type editor if title is > 20 characters
 	$('#titlewrap').on( 'keyup', 'input[name=post_title]', function() {
 
@@ -45,14 +40,6 @@ jQuery(document).ready(function($) {
 			}
 		}
 	} );
-
-	// Show notification custom message input if setting is enabled
-	$('#credly_badge_sendemail_add_message').change( function() {
-		if ( 'true' == $(this).val() )
-			$('.credly-notifications-message').show();
-		else
-			$('.credly-notifications-message').hide();
-	}).change();
 
 	$( '#delete_log_entries' ).click( function() {
 		var confirmation = confirm( 'It will delete all the log entries' );

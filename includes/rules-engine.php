@@ -6,7 +6,6 @@
  * @subpackage Achievements
  * @author LearningTimes, LLC
  * @license http://www.gnu.org/licenses/agpl.txt GNU AGPL v3.0
- * @link https://credly.com
  */
 
 /**
@@ -156,7 +155,7 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 	$achievement_object = badgeos_build_achievement_object( $achievement_id, 'earned' , $this_trigger );
 
 	// Update user's earned achievements
-	badgeos_update_user_achievements( array( 'user_id' => $user_id, 'new_achievements' => array( $achievement_object ) ) );
+	$entry_id = badgeos_update_user_achievements( array( 'user_id' => $user_id, 'new_achievements' => array( $achievement_object ) ) );
 
 	// Log the earning of the award
 	badgeos_post_log_entry( $achievement_id, $user_id );
@@ -175,7 +174,7 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 	}
 
 	// Available hook to do other things with each awarded achievement
-	do_action( 'badgeos_award_achievement', $user_id, $achievement_id, $this_trigger, $site_id, $args );
+	do_action( 'badgeos_award_achievement', $user_id, $achievement_id, $this_trigger, $site_id, $args, $entry_id );
 
 	if ( $is_recursed_filter ) {
 		reset( $wp_filter[ 'badgeos_award_achievement' ] );
@@ -191,12 +190,15 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
  * Revoke an achievement from a user
  *
  * @since  1.0.0
- * @param  integer $achievement_id The given achievement's post ID
- * @param  integer $user_id        The given user's ID
+ * @param  integer $entry_id
+ * @param  integer $achievement_id
+ * @param  integer $user_id
  * @return void
  */
-function badgeos_revoke_achievement_from_user( $achievement_id = 0, $user_id = 0 ) {
-
+function badgeos_revoke_achievement_from_user( $entry_id = 0, $achievement_id = 0, $user_id = 0 ) {
+	
+	global $wpdb;
+	
 	// Use the current user's ID if none specified
 	if ( ! $user_id )
 		$user_id = wp_get_current_user()->ID;
@@ -216,9 +218,31 @@ function badgeos_revoke_achievement_from_user( $achievement_id = 0, $user_id = 0
 
 			// Update user's earned achievements
 			badgeos_update_user_achievements( array( 'user_id' => $user_id, 'all_achievements' => $earned_achievements ) );
+			
+			$recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
+			if( count( $recs ) > 0 ) {
+				$rec = $recs[ 0 ];
+				$dirs = wp_upload_dir();
+				$basedir = trailingslashit( $dirs[ 'basedir' ] ).'/user_badges/'.$user_id.'/';
+				if( !empty( $rec->baked_image ) && file_exists( $basedir.$rec->baked_image ) ) {
+					unlink( $basedir.$rec->baked_image );
+				}
 
+				$where = array( 'user_id' => $user_id );
+
+				if( $achievement_id != 0 ) {
+					$where['ID'] = $achievement_id;
+				}
+			
+				if( $entry_id != 0 ) {
+					$where['entry_id'] = $entry_id;
+				}
+
+				$wpdb->delete($wpdb->prefix.'badgeos_achievements', $where );
+			}
+			
 			// Available hook for taking further action when an achievement is revoked
-			do_action( 'badgeos_revoke_achievement', $user_id, $achievement_id );
+			do_action( 'badgeos_revoke_achievement', $entry_id, $user_id, $achievement_id );
 
 			// Stop after dropping one, because we don't want to delete ALL instances
 			break;

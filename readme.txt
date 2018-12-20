@@ -14,7 +14,7 @@ BadgeOS turns your site into an achievement and badging system. Easily create ba
 
 [BadgeOS](http://badgeos.org "BadgeOS")&trade; turns your WordPress site into an achievement, badging and engagement management system. Your users complete steps, demonstrate skills and knowledge, and earn digital badges. Easily define the achievements, organize the badge requirements any way you like, and choose from and combine a range of assessment options to determine whether each task or requirement has been achieved.
 
-Create badges and set up the achievements to earn them. Badges are Mozilla OBI compatible and sharable via [Credly](https://credly.com/ "Credly.com"), the free web service for managing and displaying lifelong credentials.
+Create badges and set up the achievements to earn them. Badges are Mozilla OBI compatible and sharable via [Open Badge], the free web service for managing and displaying lifelong credentials.
 
 BadgeOS is extremely powerful and infinitely extensible. Check out some of the out-of-the-box features:
 
@@ -43,7 +43,6 @@ BadgeOS is extremely powerful and infinitely extensible. Check out some of the o
 
 **Design Beautiful Badge and Achievement Images from within WordPress**
 
-*   Use the integrated Credly "[Badge Builder](https://credly.com/badge-builder-home "Credly tool for designing badge images")" to create professional looking badge images right from within WordPress
 *   Launch the Badge Builder from any achievement or achievement type editing screen in WordPress admin
 *   Choose from a variety of badge shapes and border styles
 *   Select from a library of thousands of Noun Project icons, or upload your own to the center of any badge
@@ -51,12 +50,12 @@ BadgeOS is extremely powerful and infinitely extensible. Check out some of the o
 *   Full color palette selection for border, fill, icon and banner
 *   Saves automatically to your WordPress Media Library for easy re-use for other achievements or anywhere else on your site
 *   Edit previously created badge and achievement images and save new versions to your Media Library
-*   Simply enter your Credly credentials in the "Credly Integration" settings menu in BadgeOS to enable the Badge Builder. If you don't have a [Credly](https://credly.com/ "Credly lets you create and manage lifelong achievements") account, [create](https://credly.com/#!/create-account "Create a free Credly account") one for free.
+*   Simply enter your Open Badge credentials in the "Open Badge Integration" settings menu in BadgeOS to enable the Badge Builder. If you don't have a [Credly](https://credly.com/ "Credly lets you create and manage lifelong achievements") account, [create](https://credly.com/#!/create-account "Create a free Credly account") one for free.
 
 
-**Sharable Badges with Credly Integration**
+**Sharable Badges with Open Badge Integration**
 
-*   Badges are Mozilla Open Badge (OBI) compatible through [integration](http://badgeos.org/about/credly-integration/ "Credly Integration") of the "Open Credit" API by [Credly](https://credly.com/ "Credly.com"), the free web service for issuing, earning and sharing badges.
+*   Badges are Mozilla Open Badge (OBI) compatible through [integration](http://badgeos.org/about/open-badge-integration/ "Credly Integration") of the "Open Credit" API by [Credly](https://credly.com/ "Credly.com"), the free web service for issuing, earning and sharing badges.
 *   Connect your Credly account to your BadgeOS site and voila! You're using WordPress to issue "Open Badges" that can be displayed virtually anywhere.
 *   Badges you create in BadgeOS automatically appear and update on Credly
 *   Use Credly iOS app to issue badges you created on your WordPress site.
