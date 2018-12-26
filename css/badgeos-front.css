@@ -117,7 +117,7 @@ ul.badgeos-achievement-earners-list li {
 .badgeos-feedback-buttons .button,
 .badgeos-feedback-buttons .button:visited,
 .badgeos-feedback .submission-comment-toggle,
-.badgeos-feedback .submission-comment-toggle:visited, .verify-open-badge {
+.badgeos-feedback .submission-comment-toggle:visited {
 	display: inline-block;
 	text-decoration: none;
 	font-size: 12px;
@@ -148,7 +148,7 @@ ul.badgeos-achievement-earners-list li {
 .badgeos-feedback-buttons .button:hover,
 .badgeos-feedback .submission-comment-toggle:hover,
 .badgeos-feedback-buttons .button:focus,
-.badgeos-feedback .submission-comment-toggle:focus, .verify-open-badge {
+.badgeos-feedback .submission-comment-toggle:focus {
 	background: #f3f3f3;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#f3f3f3));
 	background-image: -webkit-linear-gradient(top, #fff, #f3f3f3);
@@ -160,7 +160,7 @@ ul.badgeos-achievement-earners-list li {
 	color: #222;
 }
 .badgeos-feedback-buttons .button:active,
-.badgeos-feedback .submission-comment-toggle:active, .verify-open-badge {
+.badgeos-feedback .submission-comment-toggle:active {
 	background: #eee;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#f4f4f4), to(#fefefe));
 	background-image: -webkit-linear-gradient(top, #f4f4f4, #fefefe);
@@ -269,9 +269,11 @@ ul.badgeos-achievement-earners-list li {
 
 .open_badge_main {
 	display: block;
-	width: 100% !important;
+	width: 400px !important;
+	margin: 0px auto;
 	height: auto;
 	overflow: hidden; 
+	border: 1px solid #95D0FF;
 }
 .open_badge_main .badge_left_col{
 	float: left;
@@ -291,34 +293,37 @@ ul.badgeos-achievement-earners-list li {
     overflow: hidden;
     padding: 3px 3px;
     min-height: 36px;
-	border:1px solid #000;
+	border-left: 1px solid #95D0FF;
 }
 .open_badge_main .badge_right_col .title{
 	display: block;
 	font-family: sans-serif;
-	font-size: 20px;
+	font-size: 15px;
 	color: #3b3c3d;
-	padding: 5px;
+	margin: 0px;
 }
 
 .open_badge_main .badge_right_col .issue_date{
 	display: block;
-	font-size: 12px;
+	font-size: 9px;
 	color: #3b3c3d;
-	padding: 5px;
+	padding-top: 5px;
+	width: 50%;
+	float: left;
 }
 .open_badge_main .badge_right_col .user_name{
 	display: block;
-	font-size: 12px;
+	font-size: 9px;
 	color: #3b3c3d;
-	padding: 5px;
+	padding-top: 5px;
+	
 }
 
 .open_badge_main .badge_right_col p{
 	display: block;
-	font-size: 13px;
+	font-size: 11px;
 	color: #3b3c3d;
-	padding: 5px;
+	margin: 1px;
 }
 
 
@@ -331,7 +336,7 @@ ul.badgeos-achievement-earners-list li {
 .evidence_main {
 	display: block;
 	width: 100% !important;
-	border:1px solid #f00;
+	border: 1px solid #95D0FF;
 	height: auto;
 	overflow: hidden;
 }
@@ -342,7 +347,8 @@ ul.badgeos-achievement-earners-list li {
     overflow: hidden;
     padding: 3px 3px;
 	min-height: 36px;
-	border:1px solid #000;
+	text-align: center;
+	margin: 0px auto;
 }
 .right_col{
 	float: left;
@@ -351,7 +357,7 @@ ul.badgeos-achievement-earners-list li {
     overflow: hidden;
     padding: 3px 3px;
     min-height: 36px;
-	border:1px solid #000;
+	border-left: 1px solid #95D0FF;
 }
 .right_col .title{
 	display: block;
@@ -363,9 +369,18 @@ ul.badgeos-achievement-earners-list li {
 
 .right_col .issue_date{
 	display: block;
-	font-size: 12px;
+	font-size: 11px;
 	color: #3b3c3d;
-	padding: 5px;
+	padding-top: 5px;
+	width: 50%;
+	float: left;
+}
+.open_badge_main  .user_name{
+	display: block;
+	font-size: 11px;
+	color: #3b3c3d;
+	padding-top: 5px;
+	
 }
 .right_col p{
 	display: block;
@@ -373,38 +388,32 @@ ul.badgeos-achievement-earners-list li {
 	color: #3b3c3d;
 	padding: 5px;
 }
-.right_col .evidence{
-	display: block;
-	font-size: 12px;
-	color: #3b3c3d;
-	padding: 5px;
-}
+
 .social_buttons ul li a i.btm_facebook
 {
-    background:url(../images/facebook-white-60_hvr.png) no-repeat center center;
+	background:url(../images/facebook-white-60_hvr.png) no-repeat center center;
+	text-decoration: none !important;
 }
 .social_buttons ul li a i.btm_twitter
 {
-    background:url(../images/ttwitter-white-60_hvr.png) no-repeat center center;
+	background:url(../images/ttwitter-white-60_hvr.png) no-repeat center center;
+	text-decoration: none !important;
 }
 
 .social_buttons ul li a i.btm_linkedin
 {
-    background:url(../images/linkedin-white-60_hvr.png) no-repeat center center;
+	background:url(../images/linkedin-white-60_hvr.png) no-repeat center center;
+	text-decoration: none !important;
 }
-.social_buttons ul li:hover a i.btm_facebook
+.social_buttons ul li a
 {
-background:url(../images/ffacebook-white-60.png) no-repeat center center;
+	box-shadow: none !important;
 }
-.social_buttons ul li:hover a i.btm_twitter
+.social_buttons
 {
-background:url(../images/ttwitter-white-60.png) no-repeat center center;
+	width: 60px !important;
 }
 
-.social_buttons ul li:hover a i.btm_linkedin
-{
-background:url(../images/linkedin-white-60.png) no-repeat center center;
-}
 .social_buttons  ul li {
 	float: left;
 	width: 20px;
@@ -429,39 +438,30 @@ background:url(../images/linkedin-white-60.png) no-repeat center center;
 	border-radius:3px 0 0 3px;
 }
 
-.social_buttons ul li:nth-child(1):hover a {
-	background:#37589b;
-}
-
-.social_buttons ul li:nth-child(2):hover a {
-	background:#46d4fe;
-}
-
-.social_buttons ul li:nth-child(3):hover a {
-	background:#de5a49;
-}
-	
-.social_buttons ul li:nth-child(4):hover a {
-	background:#419cca;
-}
-
-.social_buttons ul li:nth-child(5):hover a {
-	background:#9fae37;
-}
 .verification, .social_buttons{
 	display: block;
 	clear: both;
+	margin: 0px auto;
+	
 }
 #verification-res-list{
 	list-style: none;
 	color:red;
 	font-family: sans-serif;
 	font-size: 15px;
+	margin: auto;
 }
 #verification-res-list li.success{ color: green; }
 #verification-res-list li.error{ color: red; }
 #verification-res-list li.success:before { content:"\2713\0020"; width:32px;font-size: 25px; font-weight: bold; color: green; }
 #verification-res-list li.error:before { content:"\00d7\0020"; width:32px; font-size: 32px;font-weight: bold;color:red; }
 .verify-open-badge { padding:5px 15px !important; }
-.verification-final p{ font-family: sans-serif;font-size: 15px;
+
+.open-badgeos-verification{
+	background-color: #F7F7F7 !important;
+	color: #000 !important;
+}
+.verify-open-badge{
+	border:1px solid !important;
+	margin: 0px auto !important;
 }

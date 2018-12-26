@@ -96,7 +96,10 @@ class Open_Badge {
 
 			$recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
 			if( count( $recs ) > 0 ) {
-
+				
+				$expiration          = ( get_post_meta( $achievement_id, '_open_badge_expiration', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration', true ) : '0' );
+				$expiration_type     = ( get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) : 'Day' );
+		
 				$rec = $recs[ 0 ];
 
 				$user = get_user_by( 'ID', $user_id );
@@ -137,11 +140,15 @@ class Open_Badge {
 						<div class="badge_right_col">
 							<h3 class="title"><?php echo $rec->achievement_title;?></h3>        
 							<p>
-								<?php echo $achievement->post_content;?>
+								<?php echo substr( strip_tags( $achievement->post_content ), 0, 140 );?>
 							</p>
 							<div class="user_name"><strong><?php echo _e( 'Receiver', 'badgeos' );?>:</strong> <?php echo $user->display_name;?></div>
 							<div class="issue_date"><strong><?php echo _e( 'Issue Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
-							<div class="issue_date"><strong><?php echo _e( 'EXpiry Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
+							<?php if( intval( $expiration ) > 0 ) { ?>
+								<div class="issue_date"><strong><?php echo _e( 'Expiry Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( '+'.$expiration.' '.$expiration_type, strtotime( $rec->dateadded ) ) );?></div>
+							<?php } else { ?>
+								<div class="issue_date"><strong><?php echo _e( 'Expiry Date', 'badgeos' );?>:</strong> <?php echo _e( 'None', 'badgeos' );?></div>
+							<?php } ?>
 						</div>
 					</div>
 				<?php

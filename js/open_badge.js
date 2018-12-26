@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
 		var entry_id = $(this).data('eid');
 		var user_id = $(this).data('uid');
 
-  		tb_show( 'Verification', '#TB_inline?width=250&height=200&inlineId=open-badge-id' );
+  		tb_show( 'Verification', '#TB_inline?width=200&height=150&inlineId=open-badge-id' );
 		$.ajax({
             url: badgeos_vars.ajax_url,
             type: 'POST',
@@ -75,7 +75,7 @@ jQuery(document).ready(function($) {
 							dataType: 'json',
 							success: function (returndata3) {
 								if( returndata3.type == 'success' )
-									$('#verification-res-list').append('<li class="error">' + returndata3.message + '</li>');
+									$('#verification-res-list').append('<li class="success">' + returndata3.message + '</li>');
 								else
 									$('#verification-res-list').append('<li class="error">' + returndata3.message + '</li>');
 							}

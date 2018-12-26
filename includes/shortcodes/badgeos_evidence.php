@@ -138,7 +138,7 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
      */
 	$atts = shortcode_atts( array(
 	  'show_sharing_opt' => 'Yes',
-	), $atts, 'badgeos_evidence' );
+	), $atts, 'badgeos_evidence' ); 
     
     $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
     $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
@@ -164,6 +164,9 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
     if( count( $recs ) > 0 ) {
 
         $rec = $recs[0];
+
+        $expiration          = ( get_post_meta( $achievement_id, '_open_badge_expiration', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration', true ) : '0' );
+        $expiration_type     = ( get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) : 'Day' );
 
         $sharedURL = get_permalink( $achievement_id );
         $sharedURL  = add_query_arg( 'bg', $achievement_id, $sharedURL );
@@ -199,7 +202,6 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                     <?php } else { ?>
                         <?php echo badgeos_get_achievement_post_thumbnail( $achievement_id, 'full' ); ?>
                     <?php  } ?>
-                    <div class="user_name"><?php echo $user->display_name;?></div>
                     <div class="social_buttons">
                         <ul> 
                             <li><a href="<?php echo $facebookURL;?>" onclick="window.open(this.href, 'facebookwindow','left=20,top=20,width=700,height=500,toolbar=0,resizable=1'); return false;"><i class="btm_facebook"></i></a></li>
@@ -216,8 +218,13 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                     <p>
                         <?php echo $achievement->post_content;?>
                     </p>
-                    <div class="issue_date"><?php echo _e( 'Issue Date', 'badgeos' );?>: <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
-                    <div class="evidence"><?php echo _e( 'Evidence', 'badgeos' );?>: <a href="javascript:;" onclick="alert('hello')"><?php echo _e( 'View Evidence', 'badgeos' );?></a></div>
+                    <div class="user_name"><strong><?php echo _e( 'Receiver', 'badgeos' );?>:</strong> <?php echo $user->display_name;?></div>
+                    <div class="issue_date"><strong><?php echo _e( 'Issue Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
+                    <?php if( intval( $expiration ) > 0 ) { ?>
+                        <div class="issue_date"><strong><?php echo _e( 'Expiry Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( '+'.$expiration.' '.$expiration_type, strtotime( $rec->dateadded ) ) );?></div>
+                    <?php } else { ?>
+                        <div class="issue_date"><strong><?php echo _e( 'Expiry Date', 'badgeos' );?>:</strong> <?php echo _e( 'None', 'badgeos' );?></div>
+                    <?php } ?>
                 </div>
             </div>
             <div id="open-badge-id" style="display:none">
