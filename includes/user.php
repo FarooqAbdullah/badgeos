@@ -235,8 +235,19 @@ function badgeos_user_profile_data( $user = null ) {
 					'entry_id' 				=> absint( $achievement->entry_id ),
 				) );
 
+				$dirs = wp_upload_dir();
+				$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+				$basedir = trailingslashit( $dirs[ 'basedir' ] );
+				$badge_directory = trailingslashit( $basedir.'user_badges/'.$user->ID );
+				$badge_url = trailingslashit( $baseurl.'user_badges/'.$user->ID );
+				
 				echo '<tr>';
-					echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
+					if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+						echo '<td><img src="'.$badge_url.$achievement->baked_image.'" height="50" with="50" />';
+					} else {
+						echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
+					}
+					
 					echo '<td>', edit_post_link( $achievement->achievement_title, '', '', $achievement->ID ), ' </td>';
 					echo '<td><a class="badgeos_share_popup" data-bg="'.$achievement->ID.'" data-eid="'.$achievement->entry_id.'" data-uid="'.$user->ID.'" href="javascript:;">Share</a><div id="open_badge_share_box_id'.$achievement->entry_id.'" class="open_badge_share_box_id" style="display:none; position:absolute;">'.$popup.'</div></td>';
 					echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';

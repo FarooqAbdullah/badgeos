@@ -119,22 +119,8 @@ class Open_Badge {
 							<?php if( ! empty( $rec->baked_image ) && file_exists( $badge_directory.$rec->baked_image ) ) { ?>
 								<img src="<?php echo $badge_url.$rec->baked_image;?>" />
 							<?php } else { 
-									
-									$image = get_the_post_thumbnail( $rec->ID );
-									print_r($image);
-									// If we don't have an image...
-									if ( ! $image ) {
-								
-										// Grab our achievement type's post thumbnail
-										$achievement = get_page_by_path( get_post_type(), OBJECT, 'achievement-type' );
-										$image = is_object( $achievement ) ? get_the_post_thumbnail( $achievement->ID, $image_size, array( 'class' => $class ) ) : false;
-									} else {
-										$directory_url = badgeos_get_directory_url();
-										$image = $directory_url. 'images/default_badge.png';
-									}
-									echo $image ;
+									echo badgeos_get_achievement_post_thumbnail( $rec->ID, array( 50, 50 ), 'wp-post-image' );
 								?>
-								<?php echo badgeos_get_achievement_post_thumbnail( $achievement_id, 'medium' ); ?>
 							<?php  } ?>
 						</div>
 						<div class="badge_right_col">

@@ -108,7 +108,20 @@ class earned_user_achievements_widget extends WP_Widget {
 
 							$permalink  = get_permalink( $achievement->ID );
 							$title      = get_the_title( $achievement->ID );
-							$img        = badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ), 'wp-post-image' );
+							
+							$dirs = wp_upload_dir();
+							$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+							$basedir = trailingslashit( $dirs[ 'basedir' ] );
+							$badge_directory = trailingslashit( $basedir.'user_badges/'.$achievement->user_id );
+							$badge_url = trailingslashit( $baseurl.'user_badges/'.$achievement->user_id );
+		
+							if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+								$img = '<img src="'.$badge_url.$achievement->baked_image.'" height="50" with="50" />';
+							} else {
+								$img = badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ), 'wp-post-image' );
+							}
+							
+
 							$thumb      = $img ? '<a class="badgeos-item-thumb" href="'. esc_url( $permalink ) .'">' . $img .'</a>' : '';
 							$class      = 'widget-badgeos-item-title';
 							$item_class = $thumb ? ' has-thumb' : '';

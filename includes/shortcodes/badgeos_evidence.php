@@ -183,7 +183,7 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
         $user = get_user_by( 'ID', $user_id );
         $achievement = get_post( $rec->ID );
         wp_enqueue_style( 'badgeos-front' );
-        wp_enqueue_script( 'badgeos-achievements' );
+        wp_enqueue_script( 'badgeos-achievements' ); 
         
         $dirs = wp_upload_dir();
         $baseurl = trailingslashit( $dirs[ 'baseurl' ] );

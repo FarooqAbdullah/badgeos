@@ -127,15 +127,37 @@ function badgeos_reformat_entries( $content ) {
 	// $title = '<h1 class="badge-title">'. get_the_title() .'</h1>';
 
 	// check if user has earned this Achievement, and add an 'earned' class
-	$class = badgeos_get_user_achievements( array( 'achievement_id' => absint( $badge_id ) ) ) ? ' earned' : '';
-
+	$achievements = badgeos_get_user_achievements( array( 'achievement_id' => absint( $badge_id ) ) );
+	$class = count( $achievements ) > 0 ? ' earned' : '';
+	
 	// wrap our content, add the thumbnail and title and add wpautop back
 	$newcontent = '<div class="achievement-wrap'. $class .'">';
 
 	// Check if current user has earned this achievement
 	$newcontent .= badgeos_render_earned_achievement_text( $badge_id, get_current_user_id() );
 
-	$newcontent .= '<div class="alignleft badgeos-item-image">'. badgeos_get_achievement_post_thumbnail( $badge_id ) .'</div>';
+	if( trim( $class ) == 'earned' ) {
+		$achievement = $achievements[ 0 ];
+		if( isset( $achievement ) && ! empty( $achievement->baked_image ) ) {
+			
+			$dirs = wp_upload_dir();
+			$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+			$basedir = trailingslashit( $dirs[ 'basedir' ] );
+			$badge_directory = trailingslashit( $basedir.'user_badges/'.$achievement->user_id );
+			$badge_url = trailingslashit( $baseurl.'user_badges/'.$achievement->user_id );
+
+			if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+				$newcontent .= '<div class="alignleft badgeos-item-image"><img src="'.$badge_url.$achievement->baked_image.'" style="width:100px;" height="100" with="100" /></div>';
+			} else {
+				$newcontent .= '<div class="alignleft badgeos-item-image">'. badgeos_get_achievement_post_thumbnail( $badge_id ) .'</div>';
+			}
+		} else {
+			$newcontent .= '<div class="alignleft badgeos-item-image">'. badgeos_get_achievement_post_thumbnail( $badge_id ) .'</div>';
+		}
+	} else {
+		$newcontent .= '<div class="alignleft badgeos-item-image">'. badgeos_get_achievement_post_thumbnail( $badge_id ) .'</div>';
+	}
+
 	// $newcontent .= $title;
 
 	// Points for badge
@@ -399,7 +421,7 @@ function badgeos_render_achievement( $achievement = 0 ) {
 
 		// Achievement Image
 		$output .= '<div class="badgeos-item-image">';
-		$output .= '<a href="' . get_permalink( $achievement->ID ) . '">' . badgeos_get_achievement_post_thumbnail( $achievement->ID ) . '</a>';
+		$output .= '<a href="' . get_permalink( $achievement->ID ) . '">bb2' . badgeos_get_achievement_post_thumbnail( $achievement->ID ) . '</a>';
 		$output .= '</div><!-- .badgeos-item-image -->';
 
 		// Achievement Content
