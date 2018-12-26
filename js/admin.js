@@ -40,6 +40,7 @@ jQuery(document).ready(function($) {
 			}
 		}
 	} );
+	
 
 	$( '#delete_log_entries' ).click( function() {
 		var confirmation = confirm( 'It will delete all the log entries' );

@@ -1,9 +1,105 @@
 <?php
 
 /**
+ * Adding the Open Graph in the Language Attributes
+ */
+function add_opengraph_doctype( $output ) {
+    return $output . ' xmlns:og="http://opengraphprotocol.org/schema/" xmlns:fb="http://www.facebook.com/2008/fbml"';
+}
+add_filter('language_attributes', 'add_opengraph_doctype');
+
+/**
+ * Change the document title
+ */
+function badgeos_update_document_title( $old_title ){
+    global $post, $wpdb;
+
+    /**
+     * if it is not a post or a page
+     */
+    if ( !is_singular())
+        return;
+    
+    $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+    $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    badgeos_run_database_script();
+
+    $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
+    if( count( $recs ) > 0 ) {
+        $rec = $recs[0];
+        return $rec->achievement_title;
+    } 
+}
+add_filter("pre_get_document_title", "badgeos_update_document_title");
+
+/**
+ * Lets add Open Graph Meta Info
+ */
+function insert_fb_in_head() {
+    global $post, $wpdb;
+
+    /**
+     * if it is not a post or a page
+     */
+    if ( !is_singular())
+        return;
+    
+    $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+    $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    badgeos_run_database_script();
+
+    $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
+    if( count( $recs ) > 0 ) {
+
+        $rec = $recs[0];
+
+        $sharedURL = get_permalink( $achievement_id );
+        $badge  = get_post( $achievement_id );
+        
+        $sharedURL  = add_query_arg( 'bg', $achievement_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'eid', $entry_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'uid', $user_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'tn', time(), $sharedURL );     
+        $from_title = get_bloginfo( 'name' );
+        
+        $user_to = get_user_by( 'ID', $rec->user_id );
+		if( $user_to ) {
+			$user_email = $user_to->user_email;
+		}
+
+        /**
+         * Get current page title
+         */
+        $sharedTitle = $rec->achievement_title;
+        echo '<meta property="fb:admins" content="'.$user_email.'"/>';
+        echo '<title>' . $sharedTitle . '</title>';
+        echo '<meta property="og:title" content="' . $sharedTitle . '"/>';
+        echo '<meta property="og:description" content="' . $badge->post_content . '"/>';
+        echo '<meta property="og:type" content="article"/>';
+        echo '<meta property="og:url" content="' . $sharedURL . '"/>';
+        echo '<meta property="og:site_name" content="'.$from_title.'"/>';
+
+        $dirs = wp_upload_dir();
+        $baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+        $basedir = trailingslashit( $dirs[ 'basedir' ] );
+        $badge_directory = trailingslashit( $basedir.'user_badges/'.$user_id );
+        $badge_url = trailingslashit( $baseurl.'user_badges/'.$user_id );
+        if( ! empty( $rec->baked_image ) && file_exists( $badge_directory.$rec->baked_image ) ) {
+            echo '<meta property="og:image" content="' . $badge_url.$rec->baked_image . '"/>';
+        } else {
+            $thumbnail_src = wp_get_attachment_image_src( get_post_thumbnail_id( $achievement_id ), 'full' );
+            echo '<meta property="og:image" content="' . esc_attr( $thumbnail_src[0] ) . '"/>';
+        }
+        echo "";
+
+    }
+}
+add_action( 'wp_head', 'insert_fb_in_head', 5 );
+
+/**
  * Register the [badgeos_achievement] shortcode.
- *
- * @since 1.4.0
  */
 function badgeos_register_evidence_shortcode() {
 	badgeos_register_shortcode( array(
@@ -30,8 +126,6 @@ add_action( 'init', 'badgeos_register_evidence_shortcode' );
 /**
  * Single Achievement Shortcode.
  *
- * @since  1.0.0
- *
  * @param  array $atts Shortcode attributes.
  * @return string 	   HTML markup.
  */
@@ -39,20 +133,26 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
 
     global $wpdb;
 
-	// get the post id
+    /**
+     * get the post id
+     */
 	$atts = shortcode_atts( array(
 	  'show_sharing_opt' => 'Yes',
 	), $atts, 'badgeos_evidence' );
     
     $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
-    $entry_id  	    = sanitize_text_field( $_REQUEST['eid'] );
+    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
     $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
     
-    // return if entry_id not specified
+    /**
+     * return if entry_id not specified
+     */
 	if ( empty( $entry_id ) )
       return;
     
-    // return if user_id not specified  
+    /**
+     * return if user_id not specified
+     */
     if ( empty( $user_id ) )
       return;
     
@@ -65,6 +165,18 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
 
         $rec = $recs[0];
 
+        $sharedURL = get_permalink( $achievement_id );
+        $sharedURL  = add_query_arg( 'bg', $achievement_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'eid', $entry_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'uid', $user_id, $sharedURL );
+        $sharedURL  = add_query_arg( 'tn', time(), $sharedURL );
+        $sharedURL = urlencode( $sharedURL );     
+
+        /**
+         * Get current page title
+         */
+        $sharedTitle = $rec->achievement_title;
+
         $user = get_user_by( 'ID', $user_id );
         $achievement = get_post( $rec->ID );
         wp_enqueue_style( 'badgeos-front' );
@@ -75,6 +187,10 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
         $basedir = trailingslashit( $dirs[ 'basedir' ] );
         $badge_directory = trailingslashit( $basedir.'user_badges/'.$user_id );
         $badge_url = trailingslashit( $baseurl.'user_badges/'.$user_id );
+
+        $twitterURL = 'https://twitter.com/intent/tweet?text='.$sharedTitle.'&amp;url='.$sharedURL;
+        $facebookURL = 'https://www.facebook.com/sharer/sharer.php?u='.$sharedURL;
+        $linkedInURL = 'https://www.linkedin.com/shareArticle?mini=true&url='.$sharedURL.'&amp;title='.$sharedTitle;
         ?>
             <div class="evidence_main">
                 <div class="left_col">
@@ -84,24 +200,11 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                         <?php echo badgeos_get_achievement_post_thumbnail( $achievement_id, 'full' ); ?>
                     <?php  } ?>
                     <div class="user_name"><?php echo $user->display_name;?></div>
-                    <div class="social-share">
+                    <div class="social_buttons">
                         <ul> 
-                            <li>
-                                <!-- Load Facebook SDK for JavaScript -->
-                                <div id="fb-root"></div>
-                                <script>(function(d, s, id) {
-                                    var js, fjs = d.getElementsByTagName(s)[0];
-                                    if (d.getElementById(id)) return;
-                                    js = d.createElement(s); js.id = id;
-                                    js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
-                                    fjs.parentNode.insertBefore(js, fjs);
-                                }(document, 'script', 'facebook-jssdk'));</script>
-
-                                <!-- Your share button code -->
-                                <div class="fb-share-button" data-href="http://localhost/openbadge/evidence/?bg=8&eid=32&uid=2" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://localhost/openbadge/evidence/?bg=8&eid=32&uid=2" class="fb-xfbml-parse-ignore">Share</a></div>
-                            </li> 
-                            <li><a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Ft.cred.ly%2F04fNRpRiNBqlErKWi5VWIw%3D%3D%24%24%24CCyk1tk4w-vixVMJEFwDHWc0OBIfeRQHQG4kGbcdWLCUBQLyAnm86qrtlDUatEGG%3Fr%3Dhttp%253A%252F%252Fcred.ly%252Fc%252F13581706%26t%3D1545242570%26c%3Dtw&amp;text=U.S.+Election+2016+-+I+Voted%3A+I+received+credit+from+Credly" class="twitter share">Twitter</a></li> 
-                            <li><a href="https://www.linkedin.com/cws/share?url=https%3A%2F%2Ft.cred.ly%2FMo_VzjHf7blWozqD0y_cfA%2C%2C%24%24%24KV7Zm7jp1zFNMKWLikDVSAPrQKY3qEh1-KXwS-CEVuApolpON6x6c7Zfz4x4ech6%3Fr%3Dhttps%253A%252F%252Fcredly.com%252Fcredit%252F13581706%26t%3D1545242570%26c%3Dli" class="linkedin share ">LinkedIn</a></li> 
+                            <li><a href="<?php echo $facebookURL;?>" onclick="window.open(this.href, 'facebookwindow','left=20,top=20,width=700,height=500,toolbar=0,resizable=1'); return false;"><i class="btm_facebook"></i></a></li>
+                            <li><a href="<?php echo $twitterURL;?>" onclick="window.open(this.href, 'twitterwindow','left=20,top=20,width=600,height=300,toolbar=0,resizable=1'); return false;"><i class="btm_twitter"></i></a></li>
+                            <li><a href="<?php echo $linkedInURL;?>" onclick="window.open(this.href, 'linkedInwindow','left=20,top=20,width=600,height=550,toolbar=0,resizable=1'); return false;"><i class="btm_linkedin"></i></a></li>
                         </ul>
                     </div>
                     <div class="verification"> 
@@ -117,22 +220,17 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
                     <div class="evidence"><?php echo _e( 'Evidence', 'badgeos' );?>: <a href="javascript:;" onclick="alert('hello')"><?php echo _e( 'View Evidence', 'badgeos' );?></a></div>
                 </div>
             </div>
-            <div id="open-badge-id">
-                hello world
+            <div id="open-badge-id" style="display:none">
+                <div class="verification-results">
+                    <ul id="verification-res-list">
+                    </ul>
+                </div>
             </div>
         <?php
-
-        // get the post content and format the badge display
-        $achievement = get_post( $atts['id'] );
-        $output = '';
-
-        // If we're dealing with an achievement post
-        if ( badgeos_is_achievement( $achievement ) ) {
-            $output .= '<div id="badgeos-single-achievement-container" class="badgeos-single-achievement">';  // necessary for the jquery click handler to be called
-            $output .= badgeos_render_achievement( $achievement );
-            $output .= '</div>';
-        }
     }
-	// Return our rendered achievement
+    
+    /**
+     * Return our rendered achievement
+     */
 	return $output;
 }

@@ -202,8 +202,8 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 		$congrat_email_subject = ( isset( $badgeos_settings['congrat_email_subject'] ) ) ? $badgeos_settings['congrat_email_subject'] : '';
 		$email_content = ( isset( $badgeos_settings['congrat_email_body'] ) ) ? $badgeos_settings['congrat_email_body'] : '';
 		
-		$from_title = get_bloginfo( 'name' );;
-		$from_email = get_bloginfo( 'admin_email' );;
+		$from_title = get_bloginfo( 'name' );
+		$from_email = get_bloginfo( 'admin_email' );
 		
 		$achievement_type 	= $record[ 'achievement_type' ];
 		$achievement_title 	= $record[ 'achievement_title' ];

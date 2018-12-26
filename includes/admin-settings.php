@@ -347,6 +347,11 @@ function badgeos_open_badge_save() {
 				if( isset( $_POST[ 'badgeos_evidence_url' ] ) && ! empty( $_POST[ 'badgeos_evidence_url' ] ) ) {
 					update_option( 'badgeos_evidence_url', sanitize_text_field( $_POST[ 'badgeos_evidence_url' ] ) );
 				}
+
+				if( isset( $_POST[ 'badgeos_embed_url' ] ) && ! empty( $_POST[ 'badgeos_embed_url' ] ) ) {
+					update_option( 'badgeos_embed_url', sanitize_text_field( $_POST[ 'badgeos_embed_url' ] ) );
+				}
+				
 			}
 		}
 	}
@@ -362,8 +367,9 @@ function badgeos_open_badge_options() {
 	$badgeos_assertion_url 		= get_option( 'badgeos_assertion_url' ); 
 	$badgeos_json_url 			= get_option( 'badgeos_json_url' ); 
 	$badgeos_issuer_url 		= get_option( 'badgeos_issuer_url' ); 
-
+	$badgeos_embed_url 			= get_option( 'badgeos_embed_url' ); 
 	$badgeos_evidence_url 		= get_option( 'badgeos_evidence_url' ); 
+	
 ?>
 	<div class="wrap">
 		<div id="icon-options-general" class="icon32"></div>
@@ -375,7 +381,7 @@ function badgeos_open_badge_options() {
                         <?php _e( 'Assertion URL', 'badgeos' ); ?>
                     </td>
                     <td align="left">
-                        <label for="maintenance_mode_level_off">
+                        <label for="badgeos_assertion_url">
                            <?php wp_dropdown_pages( array('selected'=>$badgeos_assertion_url, 'name'=> 'badgeos_assertion_url', 'id'=>'badgeos_assertion_url' ) ); ?> 
                         </label>
                     </td>
@@ -385,7 +391,7 @@ function badgeos_open_badge_options() {
                         <?php _e( 'Issuer URL', 'badgeos' ); ?>
                     </td>
                     <td align="left">
-                        <label for="maintenance_mode_level_off">
+                        <label for="badgeos_issuer_url">
                            <?php wp_dropdown_pages( array('selected'=>$badgeos_issuer_url, 'name'=> 'badgeos_issuer_url', 'id'=>'badgeos_issuer_url' ) ); ?> 
                         </label>
                     </td>
@@ -395,7 +401,7 @@ function badgeos_open_badge_options() {
                         <?php _e( 'Badge URL', 'badgeos' ); ?>
                     </td>
                     <td align="left">
-                        <label for="maintenance_mode_level_off">
+                        <label for="badgeos_json_url">
                            <?php wp_dropdown_pages( array('selected'=>$badgeos_json_url, 'name'=> 'badgeos_json_url', 'id'=>'badgeos_json_url' ) ); ?> 
                         </label>
                     </td>
@@ -405,8 +411,18 @@ function badgeos_open_badge_options() {
                         <?php _e( 'Evidence URL', 'badgeos' ); ?>
                     </td>
                     <td align="left">
-                        <label for="maintenance_mode_level_off">
+                        <label for="badgeos_evidence_url">
                            <?php wp_dropdown_pages( array('selected'=>$badgeos_evidence_url, 'name'=> 'badgeos_evidence_url', 'id'=>'badgeos_evidence_url' ) ); ?> 
+                        </label>
+                    </td>
+				</tr>
+				<tr valign="top">
+					<td align="left" valign="top">
+                        <?php _e( 'Embed URL', 'badgeos' ); ?>
+                    </td>
+                    <td align="left">
+                        <label for="badgeos_embed_url">
+                           <?php wp_dropdown_pages( array('selected'=>$badgeos_embed_url, 'name'=> 'badgeos_embed_url', 'id'=>'badgeos_embed_url' ) ); ?> 
                         </label>
                     </td>
 				</tr>

@@ -155,6 +155,10 @@ function badgeos_update_user_achievements( $args = array() ) {
  */
 function badgeos_user_profile_data( $user = null ) {
 
+	wp_enqueue_script('thickbox');
+	wp_enqueue_style('thickbox');
+	wp_enqueue_script( 'badgeos-openjs' ); 
+	
 	$achievement_ids = array();
 
 		echo '<h2>' . __( 'BadgeOS Email Notifications', 'badgeos' ) . '</h2>';
@@ -184,16 +188,44 @@ function badgeos_user_profile_data( $user = null ) {
 		echo '</tr>';
 
 		echo '<tr><td colspan="2">';
+		
 		// List all of a user's earned achievements
 		if ( $achievements ) {
 			echo '<table class="widefat badgeos-table">';
 			echo '<thead><tr>';
 				echo '<th>'. __( 'Image', 'badgeos' ) .'</th>';
 				echo '<th>'. __( 'Name', 'badgeos' ) .'</th>';
+				echo '<th>'. __( 'Share', 'badgeos' ) .'</th>';
 				echo '<th>'. __( 'Action', 'badgeos' ) .'</th>';
 			echo '</tr></thead>';
+			$badgeos_embed_url       = get_permalink( get_option( 'badgeos_embed_url' ) ); 
 
 			foreach ( $achievements as $achievement ) {
+				$new_badgeos_embed_url 		= add_query_arg( 'bg', $achievement->ID, $badgeos_embed_url );
+				$new_badgeos_embed_url  	= add_query_arg( 'eid', $achievement->entry_id, $new_badgeos_embed_url );
+				$new_badgeos_embed_url  	= add_query_arg( 'uid', $user->ID, $new_badgeos_embed_url );
+				
+				$sharedURL  = get_permalink( $achievement->ID );
+				$sharedURL  = add_query_arg( 'bg', $achievement->ID, $sharedURL );
+				$sharedURL  = add_query_arg( 'eid', $achievement->entry_id, $sharedURL );
+				$sharedURL  = add_query_arg( 'uid', $user->ID, $sharedURL );
+				$sharedURL  = add_query_arg( 'tn', time(), $sharedURL );
+				$sharedURL  = urlencode( $sharedURL );     
+		
+				$twitterURL = 'https://twitter.com/intent/tweet?text='.$sharedTitle.'&amp;url='.$sharedURL;
+				$facebookURL = 'https://www.facebook.com/sharer/sharer.php?u='.$sharedURL;
+				$linkedInURL = 'https://www.linkedin.com/shareArticle?mini=true&url='.$sharedURL.'&amp;title='.$sharedTitle;
+
+				$popup = '<h2>Share</h2><a class="close" href="javascript:;">&times;</a><div class="content">';
+				$sharelinks = '<div class="social_buttons">';
+                $sharelinks .= '<ul>';
+                $sharelinks .= '<li><a href="'.$facebookURL.'" onclick="window.open(this.href, \'facebookwindow\',\'left=20,top=20,width=700,height=500,toolbar=0,resizable=1\'); return false;"><i class="btm_facebook"></i></a></li>';
+                $sharelinks .= '<li><a href="'.$twitterURL.'" onclick="window.open(this.href, \'twitterwindow\',\'left=20,top=20,width=600,height=300,toolbar=0,resizable=1\'); return false;"><i class="btm_twitter"></i></a></li>';
+                $sharelinks .= '<li><a href="'.$linkedInURL.'" onclick="window.open(this.href, \'linkedInwindow\',\'left=20,top=20,width=600,height=550,toolbar=0,resizable=1\'); return false;"><i class="btm_linkedin"></i></a></li>';
+				$sharelinks .= '</ul></div>';
+				$popup .= '<div class="link-column"><label>'.__( 'Embed Link', 'badgeos' ).':</label> <input type="text" value="'.$new_badgeos_embed_url.'" stype="width:70%" name="badgeos-embed-link" name="badgeos-embed-link"></div>';
+				$popup .= '<div class="share-column">'.$sharelinks.'</div>';
+				$popup .= '</div>';
 
 				// Setup our revoke URL
 				$revoke_url = add_query_arg( array(
@@ -206,6 +238,7 @@ function badgeos_user_profile_data( $user = null ) {
 				echo '<tr>';
 					echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
 					echo '<td>', edit_post_link( $achievement->achievement_title, '', '', $achievement->ID ), ' </td>';
+					echo '<td><a class="badgeos_share_popup" data-bg="'.$achievement->ID.'" data-eid="'.$achievement->entry_id.'" data-uid="'.$user->ID.'" href="javascript:;">Share</a><div id="open_badge_share_box_id'.$achievement->entry_id.'" class="open_badge_share_box_id" style="display:none; position:absolute;">'.$popup.'</div></td>';
 					echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';
 				echo '</tr>';
 

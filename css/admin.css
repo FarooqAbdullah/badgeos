@@ -143,3 +143,108 @@ Shortcode Embed styles
 .delete-log-entries.notice img {
 	vertical-align: middle;
 }
+.social_buttons ul li a i.btm_facebook {
+    background:url(../images/facebook-white-60_hvr.png) no-repeat center center;
+}
+.social_buttons ul li a i.btm_twitter {
+    background:url(../images/ttwitter-white-60_hvr.png) no-repeat center center;
+}
+
+.social_buttons ul li a i.btm_linkedin {
+    background:url(../images/linkedin-white-60_hvr.png) no-repeat center center;
+}
+.social_buttons ul li:hover a i.btm_facebook {
+	/* background:url(../images/ffacebook-white-60.png) no-repeat center center; */
+	border:1px solid #ccc;
+}
+.social_buttons ul li:hover a i.btm_twitter {
+	/* background:url(../images/ttwitter-white-60.png) no-repeat center center; */
+	border:1px solid #ccc;
+}
+.social_buttons ul li:hover a i.btm_linkedin {
+	/* background:url(../images/linkedin-white-60.png) no-repeat center center; */
+	border:1px solid #ccc;
+}
+.social_buttons  ul li {
+	float: left;
+	width: 20px;
+	text-align: center;
+	list-style-type: none;
+}
+.social_buttons ul li a i {
+	background-size: 100% auto !important;
+	display: inline-block;
+	height: 33px;
+	width: 20px;
+	position:relative;
+	top:3px;
+}
+	
+.social_buttons ul li:first-child {
+	border-radius:3px 0 0 3px;
+}
+.social_buttons {
+	display: block;
+	clear: both;
+	float: right;
+}
+.share-column{
+	float: right;
+	width: 100%;
+	padding-right: 10px;
+}  
+.link-column label {
+	display: block;
+}
+.link-column input {
+	display: block;
+	width: 100%;
+}
+.link-column{
+	padding-top: 16px;
+	float: left;
+	width:98%;
+}  
+
+.open_badge_share_box_id {
+	padding: 10px;
+	background: #ccc;
+	border-radius: 5px;
+	width: 30%;
+	position: relative;
+	transition: all 5s ease-in-out;
+  }
+  
+  .open_badge_share_box_id h2 {
+	margin-top: 0;
+	color: #333;
+	font-family: Tahoma, Arial, sans-serif;
+	margin-bottom: 5px;
+  }
+  .open_badge_share_box_id .close {
+	position: absolute;
+	top: 0px;
+	right: 9px;
+	transition: all 200ms;
+	font-size: 30px;
+	font-weight: bold;
+	text-decoration: none;
+	color: #333;
+  }
+  .open_badge_share_box_id .close:hover {
+	color: #06D85F;
+  }
+  .open_badge_share_box_id .content {
+	max-height: 30%;
+	overflow: auto;
+	border-top: 1px solid;
+  }
+  
+  @media screen and (max-width: 700px){
+	.box{
+	  width: 70%;
+	}
+	.popup{
+	  width: 70%;
+	}
+  }

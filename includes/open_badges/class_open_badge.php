@@ -16,6 +16,7 @@ class Open_Badge {
 	public $badgeos_json_page_id 		= 0; 
 	public $badgeos_issuer_page_id 		= 0;
 	public $badgeos_evidence_page_id 	= 0;
+	public $badgeos_embed_url_id 	= 0;
 
     /**
 	 * Instantiate the Opne Badge.
@@ -26,7 +27,7 @@ class Open_Badge {
 		$this->badgeos_json_page_id 		= get_option( 'badgeos_json_url' );
 		$this->badgeos_evidence_page_id		= get_option( 'badgeos_evidence_url' );
 		$this->badgeos_issuer_page_id       = get_option( 'badgeos_issuer_url' );
-		
+		$this->badgeos_embed_url_id       	= get_option( 'badgeos_embed_url' );
 		add_filter('template_include',array( $this,'badgeos_template_pages' ) );
     }
 	
@@ -53,11 +54,101 @@ class Open_Badge {
 		} else if( $post->ID == $this->badgeos_issuer_page_id ) {
 			$this->badgeos_generate_issuer( $user_id, $entry_id, $achievement_id );
 			exit;
+		} else if( $post->ID == $this->badgeos_embed_url_id ) {
+			$this->badgeos_generate_embed( $user_id, $entry_id, $achievement_id );
+			exit;
 		}
 		
 		return $page_template;
 	}
+	
+	/**
+	 * Generates assertion json.
+	 * 
+	 * @param $user_id
+	 * @param $entry_id
+	 * @param $achievement_id
+	 * 
+	 * @return none
+	 */ 
+	public function badgeos_generate_embed( $user_id, $entry_id, $achievement_id ) { 
+		
+		global $wpdb;
 
+		$badge = get_post( $achievement_id );
+		if( $badge ) {
+
+			/**
+			 * return if entry_id not specified
+			 */
+			if ( empty( $entry_id ) )
+				return;
+			
+			/**
+			 * return if user_id not specified
+			 */
+			if ( empty( $user_id ) )
+				return;
+			
+			$output = '';
+			
+			badgeos_run_database_script();
+
+			$recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
+			if( count( $recs ) > 0 ) {
+
+				$rec = $recs[ 0 ];
+
+				$user = get_user_by( 'ID', $user_id );
+				$achievement = get_post( $rec->ID );
+				wp_enqueue_style( 'badgeos-front' );
+
+				$dirs = wp_upload_dir();
+				$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+				$basedir = trailingslashit( $dirs[ 'basedir' ] );
+				$badge_directory = trailingslashit( $basedir.'user_badges/'.$user_id );
+				$badge_url = trailingslashit( $baseurl.'user_badges/'.$user_id );
+				
+				?>
+					<link rel="stylesheet" type="text/css" media="all" href="<?php echo badgeos_get_directory_url().'css/badgeos-front.css'; ?>" />
+					<div class="open_badge_main">
+						<div class="badge_left_col">
+							<?php if( ! empty( $rec->baked_image ) && file_exists( $badge_directory.$rec->baked_image ) ) { ?>
+								<img src="<?php echo $badge_url.$rec->baked_image;?>" />
+							<?php } else { 
+									
+									$image = get_the_post_thumbnail( $rec->ID );
+									print_r($image);
+									// If we don't have an image...
+									if ( ! $image ) {
+								
+										// Grab our achievement type's post thumbnail
+										$achievement = get_page_by_path( get_post_type(), OBJECT, 'achievement-type' );
+										$image = is_object( $achievement ) ? get_the_post_thumbnail( $achievement->ID, $image_size, array( 'class' => $class ) ) : false;
+									} else {
+										$directory_url = badgeos_get_directory_url();
+										$image = $directory_url. 'images/default_badge.png';
+									}
+									echo $image ;
+								?>
+								<?php echo badgeos_get_achievement_post_thumbnail( $achievement_id, 'medium' ); ?>
+							<?php  } ?>
+						</div>
+						<div class="badge_right_col">
+							<h3 class="title"><?php echo $rec->achievement_title;?></h3>        
+							<p>
+								<?php echo $achievement->post_content;?>
+							</p>
+							<div class="user_name"><strong><?php echo _e( 'Receiver', 'badgeos' );?>:</strong> <?php echo $user->display_name;?></div>
+							<div class="issue_date"><strong><?php echo _e( 'Issue Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
+							<div class="issue_date"><strong><?php echo _e( 'EXpiry Date', 'badgeos' );?>:</strong> <?php echo date( get_option('date_format'), strtotime( $rec->dateadded ) );?></div>
+						</div>
+					</div>
+				<?php
+			}
+			exit;
+		}
+	}
 	/**
 	 * Generates assertion json.
 	 * 

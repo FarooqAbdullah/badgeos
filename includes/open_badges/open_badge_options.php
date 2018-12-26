@@ -35,13 +35,22 @@ class open_badge_options {
      * Validate badgeos data
      */
     public function badgeos_validate_open_badge() {
-
-        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+        global $wpdb;
+        // ini_set('display_errors','On');
+        // error_reporting(E_ALL);
+        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
 		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
         $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        badgeos_run_database_script();
+        $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
+        $msg = array( 'type' => 'failed', 'message' => __( 'In-valid data format.', 'badgeos' ) );
+        if( count( $recs ) > 0 ) {
+            $msg = array( 'type' => 'success', 'message' => __( 'Valid data format.', 'badgeos' ) );
+        }  else {
+            $msg = array( 'type' => 'notfound', 'message' => __( 'Badge is not found.', 'badgeos' ) );
+        }
         
-        wp_send_json($_REQUEST);
-
+        wp_send_json( $msg );
     }
     
     /**
@@ -49,33 +58,49 @@ class open_badge_options {
      */
     public function badgeos_validate_revoked() {
         
-        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
 		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
         $user_id = sanitize_text_field( $_REQUEST['uid'] );
         
-        $mypost = get_post($achievement_id);
+        $mypost = get_post( $achievement_id );
 
         if( $mypost ) {
-            wp_send_json(array( 'status' => 'success', 'message' => __( 'Badge is not revoked', 'badgeos' ) ));
+            wp_send_json(array( 'type' => 'success', 'message' => __( 'Badge is not revoked', 'badgeos' ) ));
         } else {
-            wp_send_json(array( 'status' => 'error', 'message' => __( 'Badge is revoked', 'badgeos' ) ));
+            wp_send_json(array( 'type' => 'error', 'message' => __( 'Badge is revoked', 'badgeos' ) ));
         }
-
-        
-
-    }
+   }
 
     /**
      * Check if badge is not expired
      */
     public function badgeos_validate_expiry() {
-        
-        $achievement_id = $title = sanitize_text_field( $_REQUEST['bg'] );
+        global $wpdb;
+        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
 		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
         $user_id = sanitize_text_field( $_REQUEST['uid'] );
  
-        wp_send_json($_REQUEST);
+        $open_badge_expiration       = ( get_post_meta( $post->ID, '_open_badge_expiration', true ) ? get_post_meta( $post->ID, '_open_badge_expiration', true ) : '0' );
+        $open_badge_expiration_type  = ( get_post_meta( $post->ID, '_open_badge_expiration_type', true ) ? get_post_meta( $post->ID, '_open_badge_expiration_type', true ) : '0' );
 
+        if( intval( $open_badge_expiration ) > 0 ) {
+            $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
+            if( count( $recs ) > 0 ) {
+                $badge_date = strtotime( $recs[ 0 ]->dateadded );
+                $badge_expiry = strtotime( '+'.$open_badge_expiration.' '.$open_badge_expiration_type, $badge_date );
+                if( $badge_expiry > time() ){
+                    $msg = array( 'type' => 'success', 'message' => __( 'Badge is not expired', 'badgeos' ) );
+                } else {
+                    $msg = array( 'type' => 'failed', 'message' => __( 'Badge is expired', 'badgeos' ) );
+                }
+            } else {
+                $msg = array( 'type' => 'notfound', 'message' => __( 'Badge is not found', 'badgeos' ) );
+            }
+        } else {
+            wp_send_json(array( 'type' => 'success', 'message' => __( 'Badge is not expired', 'badgeos' ) ));
+        }
+
+        wp_send_json($_REQUEST);
     }
 
     /**
@@ -106,6 +131,7 @@ class open_badge_options {
         $open_badge_criteria            = ( get_post_meta( $post->ID, '_open_badge_criteria', true ) ? get_post_meta( $post->ID, '_open_badge_criteria', true ): '' );
         $open_badge_include_evidence    = ( get_post_meta( $post->ID, '_open_badge_include_evidence', true ) ? get_post_meta( $post->ID, '_open_badge_include_evidence', true ) : 'false' );
         $open_badge_expiration          = ( get_post_meta( $post->ID, '_open_badge_expiration', true ) ? get_post_meta( $post->ID, '_open_badge_expiration', true ) : '0' );
+        $open_badge_expiration_type     = ( get_post_meta( $post->ID, '_open_badge_expiration_type', true ) ? get_post_meta( $post->ID, '_open_badge_expiration_type', true ) : '0' );
         
     ?>
         <input type="hidden" name="open_badge_nonce" value="<?php echo wp_create_nonce( 'open_badge' ); ?>" />
@@ -143,7 +169,13 @@ class open_badge_options {
                 <tr valign="top">
                     <th scope="row"><label for="open_badge_expiration"><?php _e( 'Expiration', 'badgeos' ); ?></label></th>
                     <td>
-                        <input type="text" id="open_badge_expiration" name="open_badge_expiration" value="<?php echo $open_badge_expiration; ?>" class="date_picker_class" />
+                        <input type="number" id="open_badge_expiration" name="open_badge_expiration" value="<?php echo $open_badge_expiration; ?>" class="date_picker_class" />
+                        <select id="open_badge_expiration_type" name="open_badge_expiration_type">
+                            <option value="Day" <?php selected( $open_badge_expiration_type, 'Day' ); ?>><?php _e( 'Day(s)', 'badgeos' ) ?></option>
+                            <option value="Month" <?php selected( $open_badge_expiration_type, 'Month' ); ?>><?php _e( 'Month(s)', 'badgeos' ) ?></option>
+                            <option value="Year" <?php selected( $open_badge_expiration_type, 'Year' ); ?>><?php _e( 'Year(s)', 'badgeos' ) ?></option>
+                        </select>
+                        <p><?php _e( 'Enter zero or leave empty for no expiry limit.', 'badgeos' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -199,6 +231,7 @@ class open_badge_options {
         update_post_meta( $post_id, '_open_badge_criteria', get_permalink( $post_id ) ); //$fields['open_badge_criteria']
         update_post_meta( $post_id, '_open_badge_include_evidence', $fields['open_badge_include_evidence'] );
         update_post_meta( $post_id, '_open_badge_expiration', $fields['open_badge_expiration'] );
+        update_post_meta( $post_id, '_open_badge_expiration_type', $fields['open_badge_expiration_type'] );
 
         return true;
     }
@@ -217,6 +250,7 @@ class open_badge_options {
         $fields['open_badge_criteria']              = sanitize_text_field( $_POST['open_badge_criteria'] );
         $fields['open_badge_include_evidence']      = ( $_POST['open_badge_include_evidence'] ? 'true' : 'false' );
         $fields['open_badge_expiration']            = sanitize_text_field( $_POST['open_badge_expiration'] );
+        $fields['open_badge_expiration_type']       = sanitize_text_field( $_POST['open_badge_expiration_type'] );
 
         return $fields;
     }
