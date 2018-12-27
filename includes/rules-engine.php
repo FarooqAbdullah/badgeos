@@ -199,8 +199,8 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 		$record = $results[ 0 ];
 		
 		$badgeos_settings = get_option( 'badgeos_settings' );
-		$congrat_email_subject = ( isset( $badgeos_settings['congrat_email_subject'] ) ) ? $badgeos_settings['congrat_email_subject'] : '';
-		$email_content = ( isset( $badgeos_settings['congrat_email_body'] ) ) ? $badgeos_settings['congrat_email_body'] : '';
+		$congrat_email_subject = ! empty( $badgeos_settings['congrat_email_subject'] ) ? $badgeos_settings['congrat_email_subject'] : 'Congratulation for earning a badge';
+		$email_content = ! empty( $badgeos_settings['congrat_email_body'] ) ? $badgeos_settings['congrat_email_body'] : '';
 		
 		$from_title = get_bloginfo( 'name' );
 		$from_email = get_bloginfo( 'admin_email' );
@@ -266,7 +266,7 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 		ob_end_clean();
 		
 		if( !empty( $user_email ) ) {
-			wp_mail( $user_email, $email_subject, $message, $headers );
+			wp_mail( $user_email, $congrat_email_subject, $message, $headers );
 		}
 	}
 }

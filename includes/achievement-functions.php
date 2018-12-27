@@ -641,7 +641,7 @@ function badgeos_open_badge_issue_badge( $user_id, $achievement_id, $this_trigge
 	$GLOBALS['open_badge']->bake_user_badge( $entry_id, $user_id, $achievement_id );
 	
 }
-add_action( 'badgeos_award_achievement', 'badgeos_open_badge_issue_badge', 10, 6 );
+add_action( 'badgeos_award_achievement', 'badgeos_open_badge_issue_badge', 999, 6 );
 
 /**
  * Get an array of all users who have earned a given achievement

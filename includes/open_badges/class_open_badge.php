@@ -180,6 +180,8 @@ class Open_Badge {
 
 			$identity_id = $this->get_identity_id( $user_id, $entry_id, $achievement_id );
 
+			$open_badge_include_evidence = ( get_post_meta( $achievement_id, '_open_badge_include_evidence', true ) ? get_post_meta( $achievement_id, '_open_badge_include_evidence', true ) : 'false' );
+			
 			$result = array(
 				'@context'	=> 'https://w3id.org/openbadges/v2',
 				'type'	=> 'Assertion',
@@ -191,7 +193,6 @@ class Open_Badge {
 					'identity'	=> $identity_id
 				),
 				'badge'	=> $badgeos_json_url,
-				'evidence'	=> $badgeos_evidence_url,
 				'issuedOn'	=> $date->format('Y-m-d\TH:i:sP'),
 				'image'	=> $thumbnail_url,
 				'verification'	=> array(
@@ -199,7 +200,14 @@ class Open_Badge {
 					'verificationProperty'	=> 'id',
 				),
 			);
+			if( $open_badge_include_evidence == 'true' ) {
+				$result[ 'evidence' ] = $badgeos_evidence_url;
+			}
 
+			$expires = $this->expired_date( $user_id, $entry_id, $achievement_id );
+			if( ! empty( $expires ) ) {
+				$result[ 'expires' ] = $expires;
+			}
 			wp_send_json( $result );
 		}
 	}
@@ -222,7 +230,7 @@ class Open_Badge {
 			$post_title = $badge->post_title;
 			
 			$thumbnail_url = get_the_post_thumbnail_url( $achievement_id, 'full' );
-
+			
 			$badgeos_json_url  = get_permalink( $this->badgeos_json_page_id );
 			$badgeos_json_url  = add_query_arg( 'bg', $achievement_id, $badgeos_json_url );
 			$badgeos_json_url  = add_query_arg( 'eid', $entry_id, $badgeos_json_url );
@@ -274,7 +282,36 @@ class Open_Badge {
 		
 		wp_send_json( $result );
 	}
+	
+	/**
+	 * Return the expiry date
+	 * 
+	 * @param $entry_id
+	 * @param $user_id
+	 * @param $achievement_id
+	 * 
+	 * @return none
+	 */ 
+	function expired_date( $user_id, $entry_id, $achievement_id ) {
+		
+		global $wpdb;
+		
+		$open_badge_expiration       = ( get_post_meta( $achievement_id, '_open_badge_expiration', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration', true ) : '0' );
+		$open_badge_expiration_type  = ( get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) : '0' );
+		
+		$badge_expiry = '';
 
+		$recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
+		if( count( $recs ) > 0 && intval( $open_badge_expiration ) > 0 ) {
+			
+			$badge_date = strtotime( $recs[ 0 ]->dateadded );
+			$badge_expiry = date( 'Y-m-y', strtotime( '+'.$open_badge_expiration.' '.$open_badge_expiration_type, $badge_date ));
+			$date = new DateTime( $badge_expiry );
+			return $date->format('Y-m-d\TH:i:sP');
+		}
+
+		return $badge_expiry;
+	}
 
 	/**
 	 * Bake a badge if the Badge Baking is enabled
@@ -293,6 +330,7 @@ class Open_Badge {
 			$open_badge_enable_baking       	= ( get_post_meta( $achievement_id, '_open_badge_enable_baking', true ) ? get_post_meta( $achievement_id, '_open_badge_enable_baking', true ) : 'false' );
 			$open_badge_criteria            	= ( get_post_meta( $achievement_id, '_open_badge_criteria', true ) ? get_post_meta( $achievement_id, '_open_badge_criteria', true ): '' );
 			$open_badge_include_evidence    	= ( get_post_meta( $achievement_id, '_open_badge_include_evidence', true ) ? get_post_meta( $achievement_id, '_open_badge_include_evidence', true ) : 'false' );
+			
 			$open_badge_expiration  			= ( get_post_meta( $achievement_id, '_open_badge_expiration', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration', true ) : '0' );
 			if( $open_badge_enable_baking == 'true' ) {
 				
@@ -376,7 +414,11 @@ class Open_Badge {
 					),
 				);
 				
-				// 2016-11-08T11:20:30+00:00
+				$expires = $this->expired_date( $user_id, $entry_id, $achievement_id );
+				if( !empty( $expires ) ) {
+					$json[ 'expires' ] = $expires;
+				}
+
 				if( $open_badge_include_evidence == 'true' ) {
 					$json[ 'evidence' ] = $badgeos_evidence_url;
 				}

@@ -108,16 +108,7 @@ function badgeos_register_evidence_shortcode() {
 		'output_callback' => 'badgeos_achievement_evidence_shortcode',
 		'description'     => __( "Render a single achievement's evidence.", 'badgeos' ),
 		'attributes'      => array(
-			'show_sharing_opt' => array(
-				'name'        => __( 'All Share?', 'badgeos' ),
-				'description' => __( 'Display filter controls.', 'badgeos' ),
-				'type'        => 'select',
-				'values'      => array(
-					'Yes'  => __( 'Yes', 'badgeos' ),
-					'No' => __( 'No', 'badgeos' )
-					),
-				'default'     => 'true',
-				)
+			
 		),
 	) );
 }
