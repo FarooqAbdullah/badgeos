@@ -22,20 +22,18 @@ function badgeos_achievement_last_user_activity( $achievement_id = 0, $user_id =
 	// Assume the user has no history with this achievement
 	$since = 0;
 
-	// Attempt to grab the last activity date from active achievement meta
-	if ( $achievement = badgeos_user_get_active_achievement( $user_id, $achievement_id ) ) {
-		$since = $achievement->date_started - 1;
+	global $wpdb;
 
-	// Otherwise, attempt to grab the achievement date from earned achievement meta
-	} elseif ( $achievements = badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $achievement_id ) ) ) {
-		$achievement = array_pop( $achievements );
-		if ( is_object( $achievement ) )
-			$since = $achievement->date_earned + 1;
+	badgeos_run_database_script();
+
+    $table_name = $wpdb->prefix . 'badgeos_achievements';
+	$achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE ID='".$achievement_id."' and user_id='".$user_id."' order by dateadded desc" );
+	if( count( $achievements ) ) {
+		$since = strtotime( $achievements[0]->date_earned ) + 1;
 	}
 
 	// Finally, return our time
 	return $since;
-
 }
 
 /**

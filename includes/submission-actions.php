@@ -658,7 +658,7 @@ function badgeos_set_submission_status_submission_approved( $messages, $args ) {
 	badgeos_award_achievement_to_user( $args[ 'achievement_id' ], $args[ 'user_id' ] );
 
 	// Check if user can be notified
-	if ( !badgeos_can_notify_user( $args[ 'user_data' ]->ID ) ) {
+	if ( ! badgeos_can_notify_user( $args[ 'user_data' ]->ID ) ) {
 		return $messages;
 	}
 

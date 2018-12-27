@@ -24,7 +24,8 @@ function badgeos_maybe_award_achievement_to_user( $achievement_id = 0, $user_id 
 	// Set to current site id
 	if ( ! $site_id )
 		$site_id = get_current_blog_id();
-
+	
+        
 	// Grab current user ID if one isn't specified
 	if ( ! $user_id )
 		$user_id = wp_get_current_user()->ID;
@@ -32,10 +33,13 @@ function badgeos_maybe_award_achievement_to_user( $achievement_id = 0, $user_id 
 	// If the user does not have access to this achievement, bail here
 	if ( ! badgeos_user_has_access_to_achievement( $user_id, $achievement_id, $this_trigger, $site_id, $args ) )
 		return false;
-
+	
 	// If the user has completed the achievement, award it
-	if ( badgeos_check_achievement_completion_for_user( $achievement_id, $user_id, $this_trigger, $site_id, $args ) )
+	if ( badgeos_check_achievement_completion_for_user( $achievement_id, $user_id, $this_trigger, $site_id, $args ) ) {
+		
 		badgeos_award_achievement_to_user( $achievement_id, $user_id, $this_trigger, $site_id, $args );
+	}
+		
 }
 
 /**
@@ -53,13 +57,14 @@ function badgeos_check_achievement_completion_for_user( $achievement_id = 0, $us
 
 	// Assume the user has completed the achievement
 	$return = true;
-
+	
 	// Set to current site id
 	if ( ! $site_id )
 		$site_id = get_current_blog_id();
 
 	// If the user has not already earned the achievement...
-	if ( ! badgeos_get_user_achievements( array( 'user_id' => absint( $user_id ), 'achievement_id' => absint( $achievement_id ), 'since' => 1 + badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) ) ) {
+	$user_achievements = badgeos_get_user_achievements( array( 'user_id' => absint( $user_id ), 'achievement_id' => absint( $achievement_id ), 'since' => 1 + badgeos_achievement_last_user_activity( $achievement_id, $user_id ) ) );
+	if ( ! $user_achievements ) {
 
 		// Grab our required achievements for this achievement
 		$required_achievements = badgeos_get_required_achievements_for_achievement( $achievement_id );
@@ -75,7 +80,7 @@ function badgeos_check_achievement_completion_for_user( $achievement_id = 0, $us
 			}
 		}
 	}
-
+	
 	// Available filter to support custom earning rules
 	return apply_filters( 'user_deserves_achievement', $return, $user_id, $achievement_id, $this_trigger, $site_id, $args );
 
@@ -175,7 +180,7 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 
 	// Available hook to do other things with each awarded achievement
 	do_action( 'badgeos_award_achievement', $user_id, $achievement_id, $this_trigger, $site_id, $args, $entry_id );
-
+	
 	//Congratulation Email
 	badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id );
 
@@ -354,19 +359,23 @@ function badgeos_maybe_award_additional_achievements_to_user( $user_id = 0, $ach
 
     if( count($totals) < 2 ) {
         if( ! in_array( $achievement_id, $GLOBALS['badgeos']->award_ids ) ) {
-            $GLOBALS['badgeos']->award_ids[] = $achievement_id;
-            $dependent_achievements = badgeos_get_dependent_achievements( $achievement_id );
+
+			$GLOBALS['badgeos']->award_ids[] = $achievement_id;
+
+			$dependent_achievements = badgeos_get_dependent_achievements( $achievement_id );
 
             // See if a user has unlocked all achievements of a given type
-            badgeos_maybe_trigger_unlock_all( $user_id, $achievement_id );
-
+			badgeos_maybe_trigger_unlock_all( $user_id, $achievement_id );
+			
             // Loop through each dependent achievement and see if it can be awarded
-            foreach ( $dependent_achievements as $achievement )
-                badgeos_maybe_award_achievement_to_user( $achievement->ID, $user_id );
+            foreach ( $dependent_achievements as $achievement ) {
+				badgeos_maybe_award_achievement_to_user( $achievement->ID, $user_id );
+			}
         }
     } else {
         $GLOBALS['badgeos']->award_ids = array();
-    }
+	}
+	
 }
 add_action( 'badgeos_award_achievement', 'badgeos_maybe_award_additional_achievements_to_user', 10, 2 );
 
