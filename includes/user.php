@@ -16,7 +16,7 @@
  * @return array       An array of all the achievement objects that matched our parameters, or empty if none
  */
 function badgeos_get_user_achievements( $args = array() ) {
-	
+	// print_r( $args );
 	// Setup our default args
 	$defaults = array(
 		'entry_id'          => false,     // The given user's ID
@@ -35,8 +35,11 @@ function badgeos_get_user_achievements( $args = array() ) {
 
 	
     $where = 'user_id = ' . $args['user_id'];
-	if( $args['since'] > 1 ) {
-		$sincedate = date("Y-m-d h:i:a", $args['since']);
+	if( $args['since'] > 0 ) {
+		if( $args['since'] == 1 )
+			$sincedate = date("Y-m-d h:i:a", time()-1);
+		else
+			$sincedate = date("Y-m-d h:i:a", $args['since']);
 		$where .= " AND dateadded > '".$sincedate."'";
     }
 
@@ -69,8 +72,8 @@ function badgeos_get_user_achievements( $args = array() ) {
 	badgeos_run_database_script();
 
     $table_name = $wpdb->prefix . 'badgeos_achievements';
-    $user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where" );
-	
+	$user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where" );
+
     return $user_achievements;
 }
 

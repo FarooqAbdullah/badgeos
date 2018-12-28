@@ -274,6 +274,7 @@ function badgeos_get_required_achievements_for_achievement_list_markup( $steps =
 		$earned_status = badgeos_get_user_achievements( array(
 			'user_id' => absint( $user_id ),
 			'achievement_id' => absint( $step->ID ),
+			'area' => 'badgeos_get_required_achievements_for_achievement_list_markup',
 			'since' => absint( badgeos_achievement_last_user_activity( $achievement_id, $user_id ) )
 		) ) ? 'user-has-earned' : 'user-has-not-earned';
 

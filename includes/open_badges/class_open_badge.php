@@ -28,7 +28,7 @@ class Open_Badge {
 		$this->badgeos_evidence_page_id		= get_option( 'badgeos_evidence_url' );
 		$this->badgeos_issuer_page_id       = get_option( 'badgeos_issuer_url' );
 		$this->badgeos_embed_url_id       	= get_option( 'badgeos_embed_url' );
-		add_filter('template_include',array( $this,'badgeos_template_pages' ) );
+		add_filter( 'template_include', 	array( $this,'badgeos_template_pages' ) );
     }
 	
 	/**
@@ -300,12 +300,12 @@ class Open_Badge {
 		$open_badge_expiration_type  = ( get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) ? get_post_meta( $achievement_id, '_open_badge_expiration_type', true ) : '0' );
 		
 		$badge_expiry = '';
-
+		
 		$recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
 		if( count( $recs ) > 0 && intval( $open_badge_expiration ) > 0 ) {
 			
-			$badge_date = strtotime( $recs[ 0 ]->dateadded );
-			$badge_expiry = date( 'Y-m-y', strtotime( '+'.$open_badge_expiration.' '.$open_badge_expiration_type, $badge_date ));
+			$badge_date = $recs[ 0 ]->dateadded;
+			$badge_expiry = date( 'Y-m-d H:i:s', strtotime( '+'.$open_badge_expiration.' '.$open_badge_expiration_type, strtotime( $badge_date ) ));
 			$date = new DateTime( $badge_expiry );
 			return $date->format('Y-m-d\TH:i:sP');
 		}

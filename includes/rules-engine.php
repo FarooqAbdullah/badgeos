@@ -202,76 +202,78 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 	$results = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'", 'ARRAY_A' );
     if( count( $results ) ) {
 		$record = $results[ 0 ];
-		
-		$badgeos_settings = get_option( 'badgeos_settings' );
-		$congrat_email_subject = ! empty( $badgeos_settings['congrat_email_subject'] ) ? $badgeos_settings['congrat_email_subject'] : 'Congratulation for earning a badge';
-		$email_content = ! empty( $badgeos_settings['congrat_email_body'] ) ? $badgeos_settings['congrat_email_body'] : '';
-		
-		$from_title = get_bloginfo( 'name' );
-		$from_email = get_bloginfo( 'admin_email' );
-		
 		$achievement_type 	= $record[ 'achievement_type' ];
-		$achievement_title 	= $record[ 'achievement_title' ];
-		$points 			= $record[ 'points' ];
-		$baked_image 		= $record[ 'baked_image' ];
-		if( !empty( $baked_image ) ) {
-			$dirs = wp_upload_dir();
-			$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
-			$badge_url = trailingslashit( $baseurl.'user_badges/'.$record[ 'user_id'] );
-			$baked_image = $badge_url.$baked_image;
-			$baked_image = '<img src="'.$baked_image.'" with="100%" />';
-		} else {
-			$baked_image = badgeos_get_achievement_post_thumbnail( $achievement_id, 'full' );
-		}
-		
-		$user_to_title = '';
-		$user_email = '';
-		$user_to = get_user_by( 'ID', $record[ 'user_id'] );
-		if( $user_to ) {
-			$user_to_title = $user_to->display_name;
-			$user_email = $user_to->user_email;
-		}
+		if( ! empty( $achievement_type ) && trim( $achievement_type ) != 'step' ) {
+			
+			$badgeos_settings = get_option( 'badgeos_settings' );
+			$congrat_email_subject = ! empty( $badgeos_settings['congrat_email_subject'] ) ? $badgeos_settings['congrat_email_subject'] : 'Congratulation for earning a badge';
+			$email_content = ! empty( $badgeos_settings['congrat_email_body'] ) ? $badgeos_settings['congrat_email_body'] : '';
+			
+			$from_title = get_bloginfo( 'name' );
+			$from_email = get_bloginfo( 'admin_email' );
+			
+			
+			$achievement_title 	= $record[ 'achievement_title' ];
+			$points 			= $record[ 'points' ];
+			$baked_image 		= $record[ 'baked_image' ];
+			if( ! empty( $baked_image ) ) {
+				$dirs = wp_upload_dir();
+				$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+				$badge_url = trailingslashit( $baseurl.'user_badges/'.$record[ 'user_id'] );
+				$baked_image = $badge_url.$baked_image;
+				$baked_image = '<img src="'.$baked_image.'" with="100%" />';
+			} else {
+				$baked_image = badgeos_get_achievement_post_thumbnail( $achievement_id, 'full' );
+			}
+			
+			$user_to_title = '';
+			$user_email = '';
+			$user_to = get_user_by( 'ID', $record[ 'user_id'] );
+			if( $user_to ) {
+				$user_to_title = $user_to->display_name;
+				$user_email = $user_to->user_email;
+			}
 
-		$headers[] = 'From: '.$from_title.' <'.$from_email.'>';
-		$headers[] = 'Content-Type: text/html; charset=UTF-8';
+			$headers[] = 'From: '.$from_title.' <'.$from_email.'>';
+			$headers[] = 'Content-Type: text/html; charset=UTF-8';
 
-		$congrat_email_subject = str_replace('[achievement_type]', $achievement_type, $congrat_email_subject ); 
-		$congrat_email_subject = str_replace('[achievement_title]', $achievement_title, $congrat_email_subject ); 
-		$congrat_email_subject = str_replace('[points]', $points, $congrat_email_subject );
-		$congrat_email_subject = str_replace('[baked_image]', $baked_image, $congrat_email_subject );
-		$congrat_email_subject = str_replace('[user_email]', $user_email, $congrat_email_subject );
-		$congrat_email_subject = str_replace('[user_name]', $user_to_title, $congrat_email_subject );
+			$congrat_email_subject = str_replace('[achievement_type]', $achievement_type, $congrat_email_subject ); 
+			$congrat_email_subject = str_replace('[achievement_title]', $achievement_title, $congrat_email_subject ); 
+			$congrat_email_subject = str_replace('[points]', $points, $congrat_email_subject );
+			$congrat_email_subject = str_replace('[user_email]', $user_email, $congrat_email_subject );
+			$congrat_email_subject = str_replace('[user_name]', $user_to_title, $congrat_email_subject );
 
-		ob_start();
-		
-		$email_content  = stripslashes( html_entity_decode( $email_content ) );
-		$email_content = str_replace("\'","'", $email_content);
-		$email_content = str_replace('\"','"', $email_content);
+			ob_start();
+			
+			$email_content  = stripslashes( html_entity_decode( $email_content ) );
+			$email_content = str_replace("\'","'", $email_content);
+			$email_content = str_replace('\"','"', $email_content);
 
-		$email_content = str_replace('[achievement_type]', $achievement_type, $email_content ); 
-		$email_content = str_replace('[achievement_title]', $achievement_title, $email_content ); 
-		$email_content = str_replace('[points]', $points, $email_content ); 
-		$email_content = str_replace('[baked_image]', $baked_image, $email_content ); 
-		$email_content = str_replace('[user_email]', $user_email, $email_content ); 
-		$email_content = str_replace('[user_name]', $user_to_title, $email_content ); 
-		
-		include( 'email_headers/header.php' );
-		?>
-			<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-				<tr>
-					<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-						<?php echo $email_content; ?>
-					</td>
-				</tr>
-			</table>
-		<?php
-		include( 'email_headers/footer.php' );
+			$email_content = str_replace('[achievement_type]', $achievement_type, $email_content ); 
+			$email_content = str_replace('[achievement_title]', $achievement_title, $email_content ); 
+			$email_content = str_replace('[points]', $points, $email_content ); 
+			$email_content = str_replace('[badge_image]', $baked_image, $email_content ); 
+			$email_content = str_replace('[user_email]', $user_email, $email_content ); 
+			$email_content = str_replace('[user_name]', $user_to_title, $email_content ); 
+			
+			include( 'email_headers/header.php' );
+			?>
+				<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+					<tr>
+						<td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
+							<?php echo $email_content; ?>
+						</td>
+					</tr>
+				</table>
+			<?php
+			include( 'email_headers/footer.php' );
 
-		$message = ob_get_contents();
-		ob_end_clean();
-		
-		if( !empty( $user_email ) ) {
-			wp_mail( $user_email, $congrat_email_subject, $message, $headers );
+			$message = ob_get_contents();
+			ob_end_clean();
+			
+			if( ! empty( $user_email ) ) {
+				wp_mail( $user_email, strip_tags( $congrat_email_subject ), $message, $headers );
+			}
 		}
 	}
 }
@@ -512,11 +514,11 @@ function badgeos_user_has_access_to_step( $return = false, $user_id = 0, $step_i
 		$return = false;
 	}
 
-	// Prevent user from repeatedly earning the same step
+	//Prevent user from repeatedly earning the same step
 	if ( $return && $parent_achievement && badgeos_get_user_achievements( array(
 			'user_id'        => absint( $user_id ),
 			'achievement_id' => absint( $step_id ),
-			'since'          => absint( badgeos_achievement_last_user_activity( $parent_achievement->ID, $user_id ) )
+			'since'          => absint( badgeos_achievement_last_user_activity( $step_id, $user_id ) )
 		) )
 	)
 		$return = false;

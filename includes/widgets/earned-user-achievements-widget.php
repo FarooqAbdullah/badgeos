@@ -107,7 +107,10 @@ class earned_user_achievements_widget extends WP_Widget {
 						if ( get_post_type( $achievement->ID ) != 'step' ) {
 
 							$permalink  = get_permalink( $achievement->ID );
-							$title      = get_the_title( $achievement->ID );
+							if( empty( $permalink ) ) {
+								$permalink  = 'javascript:;';
+							}
+							$title      = $achievement->achievement_title;
 							
 							$dirs = wp_upload_dir();
 							$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
