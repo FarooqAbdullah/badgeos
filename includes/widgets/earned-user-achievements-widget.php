@@ -81,7 +81,7 @@ class earned_user_achievements_widget extends WP_Widget {
 			}
 
 			$achievements = badgeos_get_user_achievements(array('display'=>true));
-
+			
 			if ( is_array( $achievements ) && ! empty( $achievements ) ) {
 
 				$number_to_show = absint( $instance['number'] );
@@ -101,10 +101,10 @@ class earned_user_achievements_widget extends WP_Widget {
 
 					//verify achievement type is set to display in the widget settings
 					//if $set_achievements is not an array it means nothing is set so show all achievements
-					if ( ! is_array( $set_achievements ) || in_array( $achievement->post_type, $set_achievements ) ) {
+					if ( ! is_array( $set_achievements ) || in_array( $achievement->achievement_type, $set_achievements ) ) {
 
 						//exclude step CPT entries from displaying in the widget
-						if ( get_post_type( $achievement->ID ) != 'step' ) {
+						if ( $achievement->achievement_type != 'step' ) {
 
 							$permalink  = get_permalink( $achievement->ID );
 							if( empty( $permalink ) ) {

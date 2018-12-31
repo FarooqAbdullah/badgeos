@@ -27,16 +27,13 @@ function badgeos_achievement_last_user_activity( $achievement_id = 0, $user_id =
 	/**
      * Attempt to grab the last activity date from active achievement meta
      */
-	if ( $achievement = badgeos_user_get_active_achievements( $user_id, $achievement_id ) ) {
-		$since = $achievement->date_started - 1;
-
-	/**
-     * Otherwise, attempt to grab the achievement date from earned achievement meta
-     */
-	} elseif ( $achievements = badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $achievement_id ) ) ) {
+	if ( $achievements = badgeos_get_user_achievements( array( 'user_id' => $user_id, 'achievement_id' => $achievement_id ) ) ) {
 		$achievement = array_pop( $achievements );
 		if ( is_object( $achievement ) )
-			$since = $achievement->dateadded + 1;
+			if ( ! empty( $achievement->dateadded ) ) {
+				$since = strtotime( $achievement->dateadded ) + 1;
+			}
+				
 	}
 
 	// Finally, return our time

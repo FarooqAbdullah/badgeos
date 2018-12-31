@@ -158,16 +158,16 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 
 	// Setup our achievement object
 	$achievement_object = badgeos_build_achievement_object( $achievement_id, 'earned' , $this_trigger );
-
+	
 	// Update user's earned achievements
 	$entry_id = badgeos_update_user_achievements( array( 'user_id' => $user_id, 'new_achievements' => array( $achievement_object ) ) );
-
+	
 	// Log the earning of the award
 	badgeos_post_log_entry( $achievement_id, $user_id );
-
+	
 	// Available hook for unlocking any achievement of this achievement type
-	do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
-
+	//do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
+	
 	// Patch for WordPress to support recursive actions, specifically for badgeos_award_achievement
 	// Because global iteration is fun, assuming we can get this fixed for WordPress 3.9
 	$is_recursed_filter = ( 'badgeos_award_achievement' == current_filter() );
@@ -177,7 +177,7 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 	if ( $is_recursed_filter ) {
 		$current_key = key( $wp_filter[ 'badgeos_award_achievement' ] );
 	}
-
+	
 	// Available hook to do other things with each awarded achievement
 	do_action( 'badgeos_award_achievement', $user_id, $achievement_id, $this_trigger, $site_id, $args, $entry_id );
 	
@@ -203,6 +203,7 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
     if( count( $results ) ) {
 		$record = $results[ 0 ];
 		$achievement_type 	= $record[ 'achievement_type' ];
+		$type_title  = $achievement_type;
 		if( ! empty( $achievement_type ) && trim( $achievement_type ) != 'step' ) {
 			
 			$badgeos_settings = get_option( 'badgeos_settings' );
@@ -211,7 +212,6 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 			
 			$from_title = get_bloginfo( 'name' );
 			$from_email = get_bloginfo( 'admin_email' );
-			
 			
 			$achievement_title 	= $record[ 'achievement_title' ];
 			$points 			= $record[ 'points' ];
@@ -233,11 +233,15 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 				$user_to_title = $user_to->display_name;
 				$user_email = $user_to->user_email;
 			}
-
+			$posts = get_posts( array( 'name' => $type_title, 'post_type'   => 'achievement-type' ) );
+			if( count( $posts )   ) {
+				$type_title = $posts[ 0 ]->post_title;
+			}
+			
 			$headers[] = 'From: '.$from_title.' <'.$from_email.'>';
 			$headers[] = 'Content-Type: text/html; charset=UTF-8';
 
-			$congrat_email_subject = str_replace('[achievement_type]', $achievement_type, $congrat_email_subject ); 
+			$congrat_email_subject = str_replace('[achievement_type]', $type_title, $congrat_email_subject ); 
 			$congrat_email_subject = str_replace('[achievement_title]', $achievement_title, $congrat_email_subject ); 
 			$congrat_email_subject = str_replace('[points]', $points, $congrat_email_subject );
 			$congrat_email_subject = str_replace('[user_email]', $user_email, $congrat_email_subject );
@@ -249,10 +253,9 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 			$email_content = str_replace("\'","'", $email_content);
 			$email_content = str_replace('\"','"', $email_content);
 
-			$email_content = str_replace('[achievement_type]', $achievement_type, $email_content ); 
+			$email_content = str_replace('[achievement_type]', $type_title, $email_content ); 
 			$email_content = str_replace('[achievement_title]', $achievement_title, $email_content ); 
 			$email_content = str_replace('[points]', $points, $email_content ); 
-			$email_content = str_replace('[badge_image]', $baked_image, $email_content ); 
 			$email_content = str_replace('[user_email]', $user_email, $email_content ); 
 			$email_content = str_replace('[user_name]', $user_to_title, $email_content ); 
 			
@@ -356,14 +359,15 @@ function badgeos_maybe_award_additional_achievements_to_user( $user_id = 0, $ach
 
     $dependent_achievements = array();
 
-    $time = strtotime(" -1 second ");
+	$time = absint( badgeos_achievement_last_user_activity( $achievement_id, $user_id ) );
+
     $totals = badgeos_get_user_achievements( array("user_id"=>$user_id,"achievement_id"=>$achievement_id, 'since'=>$time) );
 
     if( count($totals) < 2 ) {
         if( ! in_array( $achievement_id, $GLOBALS['badgeos']->award_ids ) ) {
 
 			$GLOBALS['badgeos']->award_ids[] = $achievement_id;
-
+			
 			$dependent_achievements = badgeos_get_dependent_achievements( $achievement_id );
 
             // See if a user has unlocked all achievements of a given type
@@ -503,7 +507,7 @@ function badgeos_user_has_access_to_achievement( $user_id = 0, $achievement_id =
  * @return bool              True if user has access to step, false otherwise
  */
 function badgeos_user_has_access_to_step( $return = false, $user_id = 0, $step_id = 0 ) {
-
+	
 	// If we're not working with a step, bail here
 	if ( 'step' != get_post_type( $step_id ) )
 		return $return;
@@ -515,14 +519,18 @@ function badgeos_user_has_access_to_step( $return = false, $user_id = 0, $step_i
 	}
 
 	//Prevent user from repeatedly earning the same step
+	$latest_activity = absint( badgeos_achievement_last_user_activity( $step_id, $user_id ) );
+	
 	if ( $return && $parent_achievement && badgeos_get_user_achievements( array(
 			'user_id'        => absint( $user_id ),
 			'achievement_id' => absint( $step_id ),
-			'since'          => absint( badgeos_achievement_last_user_activity( $step_id, $user_id ) )
+			'since'          => $latest_activity
 		) )
-	)
+	) {
 		$return = false;
-
+	}
+		
+	
 	// Send back our eligigbility
 	return $return;
 }
@@ -597,6 +605,7 @@ add_filter( 'user_has_access_to_achievement', 'badgeos_check_if_all_enabled', 15
 function badgeos_user_deserves_step( $return = false, $user_id = 0, $step_id = 0 ) {
 
 	// Only override the $return data if we're working on a step
+	
 	if ( 'step' == get_post_type( $step_id ) ) {
 
 		// Get the required number of checkins for the step.
@@ -605,13 +614,21 @@ function badgeos_user_deserves_step( $return = false, $user_id = 0, $step_id = 0
 		// Grab the relevent activity for this step
 		$relevant_count = absint( badgeos_get_step_activity_count( $user_id, $step_id ) );
 
+		$userachs = badgeos_get_user_achievements( array( 'user_id' => absint( $user_id ), 'achievement_id' => absint( $step_id ) ) );
+		$total_awarded = count( $userachs );
+		
+		$times_used = intval( $minimum_activity_count ) * intval( $total_awarded );
+		
+		$relevant_count = $relevant_count - $times_used;
+
+
 		// If we meet or exceed the required number of checkins, they deserve the step
 		if ( $relevant_count >= $minimum_activity_count )
 			$return = true;
 		else
 			$return = false;
 	}
-
+	
 	return $return;
 }
 add_filter( 'user_deserves_achievement', 'badgeos_user_deserves_step', 10, 3 );

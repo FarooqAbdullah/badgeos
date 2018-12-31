@@ -162,6 +162,12 @@ class Open_Badge {
 			$date = new DateTime();
 
 			$thumbnail_url = get_the_post_thumbnail_url( $achievement_id, 'full' );
+			
+			if( empty( $thumbnail_url ) ) {
+				$directory_url = badgeos_get_directory_url();
+				$thumbnail_url = $directory_url. 'images/default_badge.png';
+			}
+			
 
 			$badgeos_assertion_url 	= get_permalink( $this->badgeos_assertion_page_id );
 			$badgeos_assertion_url  = add_query_arg( 'bg', $achievement_id, $badgeos_assertion_url );
@@ -230,7 +236,11 @@ class Open_Badge {
 			$post_title = $badge->post_title;
 			
 			$thumbnail_url = get_the_post_thumbnail_url( $achievement_id, 'full' );
-			
+			if( empty( $thumbnail_url ) ) {
+				$directory_url = badgeos_get_directory_url();
+				$thumbnail_url = $directory_url. 'images/default_badge.png';
+			}
+
 			$badgeos_json_url  = get_permalink( $this->badgeos_json_page_id );
 			$badgeos_json_url  = add_query_arg( 'bg', $achievement_id, $badgeos_json_url );
 			$badgeos_json_url  = add_query_arg( 'eid', $entry_id, $badgeos_json_url );
@@ -355,6 +365,11 @@ class Open_Badge {
 				$post_title = $badge->post_title;
 				
 				$thumbnail_url 	= get_the_post_thumbnail_url( $achievement_id, 'full' );
+				if( empty( $thumbnail_url ) ) {
+					$directory_url = badgeos_get_directory_url();
+					$thumbnail_url = $directory_url. 'images/default_badge.png';
+				}
+
 				$userdirectory 	= '/images/users/';
 				$directory 		= badgeos_get_directory_path();
 				$directory 		.= $userdirectory;
@@ -422,6 +437,7 @@ class Open_Badge {
 				if( $open_badge_include_evidence == 'true' ) {
 					$json[ 'evidence' ] = $badgeos_evidence_url;
 				}
+
 				$result = $this->bake_image( $thumbnail_url, $json );
 
 				$filename = ( 'Badge-'.$entry_id . '-' . $achievement_id ).'.png';

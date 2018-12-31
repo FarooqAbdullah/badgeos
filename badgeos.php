@@ -398,9 +398,10 @@ function badgeos_run_database_script() {
 			`this_trigger` varchar(100) DEFAULT NULL,
 			`baked_image` varchar(50) DEFAULT NULL,
 			`site_id` int(10) DEFAULT '0',
-			`dateadded` timestamp NULL DEFAULT NULL,						
+			`dateadded` timestamp NULL DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,						
 			PRIMARY KEY (`entry_id`)
 		);";
 		$wpdb->query( $sql );
 	}
 }
+

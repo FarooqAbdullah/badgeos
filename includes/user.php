@@ -16,7 +16,7 @@
  * @return array       An array of all the achievement objects that matched our parameters, or empty if none
  */
 function badgeos_get_user_achievements( $args = array() ) {
-	// print_r( $args );
+	
 	// Setup our default args
 	$defaults = array(
 		'entry_id'          => false,     // The given user's ID
@@ -32,14 +32,10 @@ function badgeos_get_user_achievements( $args = array() ) {
     if( $args['user_id'] == 0 ) {
         $args['user_id'] = get_current_user_id();
     }
-
 	
     $where = 'user_id = ' . $args['user_id'];
-	if( $args['since'] > 0 ) {
-		if( $args['since'] == 1 )
-			$sincedate = date("Y-m-d h:i:a", time()-1);
-		else
-			$sincedate = date("Y-m-d h:i:a", $args['since']);
+	if( $args['since'] > 1 ) {
+		$sincedate = date("Y-m-d H:i:s", $args['since']);
 		$where .= " AND dateadded > '".$sincedate."'";
     }
 
@@ -72,8 +68,9 @@ function badgeos_get_user_achievements( $args = array() ) {
 	badgeos_run_database_script();
 
     $table_name = $wpdb->prefix . 'badgeos_achievements';
-	$user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where" );
-
+	$user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where order by dateadded" );
+//echo "<br>SELECT * FROM $table_name WHERE $where order by dateadded";
+// exit;
     return $user_achievements;
 }
 
@@ -140,7 +137,7 @@ function badgeos_update_user_achievements( $args = array() ) {
 			'user_id'               => absint( $args['user_id'] ),
 			'site_id'               => $args['site_id'],
 			'baked_image'           => '',
-			'dateadded'             => date("Y-m-d h:i:s")
+			// 'dateadded'             => date("Y-m-d H:i:s")
 		));
 		update_user_meta( absint( $args['user_id'] ), '_badgeos_achievements', $achievements);
 		return $wpdb->insert_id;

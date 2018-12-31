@@ -157,7 +157,7 @@ function badgeos_settings_page() {
 					<td>
 						<?php wp_editor( $congrat_email_body , 'badgeos_settings[congrat_email_body]', array('media_buttons' => false,'textarea_rows' => 5) ); ?>
 						<p>
-							<b>Shortcodes:</b> [achievement_type], [achievement_title], [points], [badge_image], [user_email], [user_name]
+							<b>Shortcodes:</b> [achievement_type], [achievement_title], [points], [user_email], [user_name]
 						</p>
 					</td>
 				</tr>
