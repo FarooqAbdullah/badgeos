@@ -178,6 +178,9 @@ class open_badge_options {
                         <p><?php _e( 'Enter zero or leave empty for no expiry limit.', 'badgeos' ); ?></p>
                     </td>
                 </tr>
+                <tr valign="top">
+                    <th colspan="2"><b><?php _e( 'Note', 'badgeos' ); ?></b>: <?php _e( "If enabled badge baking is 'yes' then upload png images only on featured image option.", 'badgeos' ); ?></th>
+                </tr>
             </table>
         </div>
     <?php

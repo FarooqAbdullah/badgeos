@@ -472,6 +472,35 @@ function badgeos_featured_image_metabox_title( $string = '' ) {
 }
 add_filter( 'gettext', 'badgeos_featured_image_metabox_title' );
 
+
+/**
+ * Globally replace "Featured Image" text with "Achievement Image".
+ *
+ * @since  1.3.0
+ *
+ * @param  string $string Original output string.
+ * @return string         Potentially modified output string.
+ */
+function badgeos_open_badge_png_only_note( $html ) {
+	
+	$pt = get_current_screen()->post_type;
+	
+	//if ( $pt != 'post') return;
+	$achievement_types = get_posts( array(
+		'post_type'      =>	'achievement-type',
+		'posts_per_page' =>	-1,
+	) );
+
+	// Loop through each achievement type post and register it as a CPT
+	foreach ( $achievement_types as $achievement_type ) {
+		if ( $pt == $achievement_type->post_name ) {
+			return $html .= "<b>".__( 'Note', 'badgeos' ).'</b>:'.__( "If 'enabled badge baking' option is 'yes' then upload png images only here.", 'badgeos' );
+		}
+	}
+	return $html;
+}
+add_filter( 'admin_post_thumbnail_html', 'badgeos_open_badge_png_only_note');
+
 /**
  * Change "Featured Image" to "Achievement Image" in post editor metabox.
  *
