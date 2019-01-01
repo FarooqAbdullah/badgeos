@@ -69,8 +69,7 @@ function badgeos_get_user_achievements( $args = array() ) {
 
     $table_name = $wpdb->prefix . 'badgeos_achievements';
 	$user_achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where order by dateadded" );
-//echo "<br>SELECT * FROM $table_name WHERE $where order by dateadded";
-// exit;
+
     return $user_achievements;
 }
 

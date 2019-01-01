@@ -422,7 +422,7 @@ function badgeos_render_achievement( $achievement = 0 ) {
 
 		// Achievement Image
 		$output .= '<div class="badgeos-item-image">';
-		$output .= '<a href="' . get_permalink( $achievement->ID ) . '">bb2' . badgeos_get_achievement_post_thumbnail( $achievement->ID ) . '</a>';
+		$output .= '<a href="' . get_permalink( $achievement->ID ) . '">' . badgeos_get_achievement_post_thumbnail( $achievement->ID ) . '</a>';
 		$output .= '</div><!-- .badgeos-item-image -->';
 
 		// Achievement Content
