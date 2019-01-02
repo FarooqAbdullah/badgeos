@@ -166,7 +166,7 @@ function badgeos_award_achievement_to_user( $achievement_id = 0, $user_id = 0, $
 	badgeos_post_log_entry( $achievement_id, $user_id );
 	
 	// Available hook for unlocking any achievement of this achievement type
-	//do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
+	do_action( 'badgeos_unlock_' . $achievement_object->post_type, $user_id, $achievement_id, $this_trigger, $site_id, $args );
 	
 	// Patch for WordPress to support recursive actions, specifically for badgeos_award_achievement
 	// Because global iteration is fun, assuming we can get this fixed for WordPress 3.9
