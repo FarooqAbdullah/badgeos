@@ -494,7 +494,7 @@ function badgeos_open_badge_png_only_note( $html ) {
 	// Loop through each achievement type post and register it as a CPT
 	foreach ( $achievement_types as $achievement_type ) {
 		if ( $pt == $achievement_type->post_name ) {
-			return $html .= "<b>".__( 'Note', 'badgeos' ).'</b>:'.__( "If 'enabled badge baking' option is 'yes' then upload png images only here.", 'badgeos' );
+			return $html .= "<b>".__( 'Note', 'badgeos' ).'</b>: '.__( "If 'enabled badge baking' option is 'yes' then upload png images only here.", 'badgeos' );
 		}
 	}
 	return $html;
