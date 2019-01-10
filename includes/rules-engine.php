@@ -478,7 +478,13 @@ function badgeos_user_has_access_to_achievement( $user_id = 0, $achievement_id =
 
 		// If the parent requires sequential steps, confirm we've earned all previous steps
 		if ( $return && badgeos_is_achievement_sequential( $parent_achievement->ID ) ) {
-			foreach ( badgeos_get_children_of_achievement( $parent_achievement->ID ) as $sibling ) {
+			$children = badgeos_get_children_of_achievement( $parent_achievement->ID );
+			if(count( $children ) > 0 ) {
+				print_r($children);
+				exit;
+			}
+			
+			foreach ( $children as $sibling ) {
 				// If this is the current step, we're good to go
 				if ( $sibling->ID == $achievement_id ) {
 					break;
