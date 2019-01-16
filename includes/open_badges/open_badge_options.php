@@ -36,11 +36,22 @@ class open_badge_options {
      */
     public function badgeos_validate_open_badge() {
         global $wpdb;
-        // ini_set('display_errors','On');
-        // error_reporting(E_ALL);
-        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
-		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
-        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        
+        $achievement_id = 0;
+        if( ! empty( $_REQUEST['bg'] ) ) {
+            $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+        }
+        
+        $entry_id = 0;
+        if( ! empty( $_REQUEST['eid'] ) ) {
+            $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+        }
+        
+        $user_id = 0;
+        if( ! empty( $_REQUEST['uid'] ) ) {
+            $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+        }
+
         badgeos_run_database_script();
         $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
         $msg = array( 'type' => 'failed', 'message' => __( 'In-valid data format.', 'badgeos' ) );
@@ -58,9 +69,20 @@ class open_badge_options {
      */
     public function badgeos_validate_revoked() {
         
-        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
-		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
-        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        $achievement_id = 0;
+        if( ! empty( $_REQUEST['bg'] ) ) {
+            $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+        }
+        
+        $entry_id = 0;
+        if( ! empty( $_REQUEST['eid'] ) ) {
+            $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+        }
+        
+        $user_id = 0;
+        if( ! empty( $_REQUEST['uid'] ) ) {
+            $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+        }
         
         $mypost = get_post( $achievement_id );
 
@@ -76,9 +98,21 @@ class open_badge_options {
      */
     public function badgeos_validate_expiry() {
         global $wpdb;
-        $achievement_id = sanitize_text_field( $_REQUEST['bg'] );
-		$entry_id = sanitize_text_field( $_REQUEST['eid'] );
-        $user_id = sanitize_text_field( $_REQUEST['uid'] );
+        
+        $achievement_id = 0;
+        if( ! empty( $_REQUEST['bg'] ) ) {
+            $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+        }
+        
+        $entry_id = 0;
+        if( ! empty( $_REQUEST['eid'] ) ) {
+            $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+        }
+        
+        $user_id = 0;
+        if( ! empty( $_REQUEST['uid'] ) ) {
+            $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+        }
  
         $open_badge_expiration       = ( get_post_meta( $post->ID, '_open_badge_expiration', true ) ? get_post_meta( $post->ID, '_open_badge_expiration', true ) : '0' );
         $open_badge_expiration_type  = ( get_post_meta( $post->ID, '_open_badge_expiration_type', true ) ? get_post_meta( $post->ID, '_open_badge_expiration_type', true ) : '0' );

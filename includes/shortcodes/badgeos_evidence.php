@@ -20,9 +20,21 @@ function badgeos_update_document_title( $old_title ){
     if ( !is_singular())
         return;
     
-    $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
-    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
-    $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    $achievement_id = 0;
+    if( ! empty( $_REQUEST['bg'] ) ) {
+        $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+    }
+    
+    $entry_id = 0;
+    if( ! empty( $_REQUEST['eid'] ) ) {
+        $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+    }
+    
+    $user_id = 0;
+    if( ! empty( $_REQUEST['uid'] ) ) {
+        $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    }
+        
     badgeos_run_database_script();
 
     $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where entry_id='".$entry_id."'" );
@@ -45,9 +57,20 @@ function insert_fb_in_head() {
     if ( !is_singular())
         return;
     
-    $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
-    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
-    $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    $achievement_id = 0;
+    if( ! empty( $_REQUEST['bg'] ) ) {
+        $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+    }
+    
+    $entry_id = 0;
+    if( ! empty( $_REQUEST['eid'] ) ) {
+        $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+    }
+    
+    $user_id = 0;
+    if( ! empty( $_REQUEST['uid'] ) ) {
+        $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    }
     badgeos_run_database_script();
 
     $recs = $wpdb->get_results( "select * from ".$wpdb->prefix."badgeos_achievements where ID='".$achievement_id."' and  entry_id='".$entry_id."' and  user_id='".$user_id."'" );
@@ -131,9 +154,20 @@ function badgeos_achievement_evidence_shortcode( $atts = array() ) {
 	  'show_sharing_opt' => 'Yes',
 	), $atts, 'badgeos_evidence' ); 
     
-    $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
-    $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
-    $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    $achievement_id = 0;
+    if( ! empty( $_REQUEST['bg'] ) ) {
+        $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+    }
+    
+    $entry_id = 0;
+    if( ! empty( $_REQUEST['eid'] ) ) {
+        $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+    }
+    
+    $user_id = 0;
+    if( ! empty( $_REQUEST['uid'] ) ) {
+        $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+    }
     
     /**
      * return if entry_id not specified
