@@ -246,6 +246,12 @@ class BadgeOS {
 			$badgeos_settings['submission_email'] = 'enabled';
 			$badgeos_settings['debug_mode']       = 'disabled';
 			$badgeos_settings['remove_data_on_uninstall']   = null;
+			$badgeos_settings['congrat_email_subject'] = __( 'New Achievement Awarded: [achievement_title]', 'badgeos' );
+
+			$body = __( 'Dear [user_name],', 'badgeos' ) . '<br><br>';
+			$body .= __( 'You have earned a new badge "[achievement_title]". [points] points are also added in your point balance.', 'badgeos' ) . '<br><br>';
+			$body .= __( 'Thanks,', 'badgeos' );
+			$badgeos_settings['congrat_email_body'] = $body;
 			update_option( 'badgeos_settings', $badgeos_settings );
 		}
 

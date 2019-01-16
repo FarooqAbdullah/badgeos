@@ -239,7 +239,9 @@ Shortcode Embed styles
 	overflow: auto;
 	border-top: 1px solid;
   }
-  
+  .badgeos-share-card{
+	width: 100% !important;
+  }
   @media screen and (max-width: 700px){
 	.box{
 	  width: 70%;

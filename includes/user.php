@@ -173,94 +173,110 @@ function badgeos_user_profile_data( $user = null ) {
 		echo '</table>';
 
 	//verify uesr meets minimum role to view earned badges
-	if ( current_user_can( badgeos_get_manager_capability() ) ) {
+	
 		
-		$achievements = badgeos_get_user_achievements( array( 'user_id' => absint( $user->ID ) ) );
-		
-		echo '<h2>' . __( 'Earned Achievements', 'badgeos' ) . '</h2>';
+	$achievements = badgeos_get_user_achievements( array( 'user_id' => absint( $user->ID ) ) );
+	
+	echo '<h2>' . __( 'Earned Achievements', 'badgeos' ) . '</h2>';
 
-		echo '<input type="hidden" name="badgeoscp" id="badgeoscp" value="'.badgeos_get_users_points( $user->ID ).'" /><table class="form-table">';
-		echo '<tr>';
-			echo '<th><label for="user_points">' . __( 'Earned Points', 'badgeos' ) . '</label></th>';
-			echo '<td>';
-				echo '<input type="text" name="user_points" id="badgeos_user_points" value="' . badgeos_get_users_points( $user->ID ) . '" class="regular-text" /><br />';
-				echo '<span class="description">' . __( "The user's points total. Entering a new total will automatically log the change and difference between totals.", 'badgeos' ) . '</span>';
-			echo '</td>';
-		echo '</tr>';
+	echo '<input type="hidden" name="badgeoscp" id="badgeoscp" value="'.badgeos_get_users_points( $user->ID ).'" /><table class="form-table">';
+	echo '<tr>';
+		echo '<th><label for="user_points">' . __( 'Earned Points', 'badgeos' ) . '</label></th>';
+		echo '<td>';
+			echo '<input type="text" name="user_points" id="badgeos_user_points" value="' . badgeos_get_users_points( $user->ID ) . '" class="regular-text" /><br />';
+			echo '<span class="description">' . __( "The user's points total. Entering a new total will automatically log the change and difference between totals.", 'badgeos' ) . '</span>';
+		echo '</td>';
+	echo '</tr>';
 
-		echo '<tr><td colspan="2">';
-		
-		// List all of a user's earned achievements
-		if ( $achievements ) {
-			echo '<table class="widefat badgeos-table">';
-			echo '<thead><tr>';
-				echo '<th>'. __( 'Image', 'badgeos' ) .'</th>';
-				echo '<th>'. __( 'Name', 'badgeos' ) .'</th>';
-				echo '<th>'. __( 'Share', 'badgeos' ) .'</th>';
+	echo '<tr><td colspan="2">';
+	
+	// List all of a user's earned achievements
+	if ( $achievements ) {
+		echo '<table class="widefat badgeos-table">';
+		echo '<thead><tr>';
+			echo '<th>'. __( 'Image', 'badgeos' ) .'</th>';
+			echo '<th>'. __( 'Name', 'badgeos' ) .'</th>';
+			echo '<th>'. __( 'Share', 'badgeos' ) .'</th>';
+			if ( current_user_can( badgeos_get_manager_capability() ) ) {
 				echo '<th>'. __( 'Action', 'badgeos' ) .'</th>';
-			echo '</tr></thead>';
-			$badgeos_embed_url       = get_permalink( get_option( 'badgeos_embed_url' ) ); 
-
-			foreach ( $achievements as $achievement ) {
-				if( $achievement->achievement_type != 'step' ) {
-					
-					$new_badgeos_embed_url 		= add_query_arg( 'bg', $achievement->ID, $badgeos_embed_url );
-					$new_badgeos_embed_url  	= add_query_arg( 'eid', $achievement->entry_id, $new_badgeos_embed_url );
-					$new_badgeos_embed_url  	= add_query_arg( 'uid', $user->ID, $new_badgeos_embed_url );
-					
-					$sharedURL  = get_permalink( $achievement->ID );
-					$sharedURL  = add_query_arg( 'bg', $achievement->ID, $sharedURL );
-					$sharedURL  = add_query_arg( 'eid', $achievement->entry_id, $sharedURL );
-					$sharedURL  = add_query_arg( 'uid', $user->ID, $sharedURL );
-					$sharedURL  = add_query_arg( 'tn', time(), $sharedURL );
-					$sharedURL  = urlencode( $sharedURL );     
-			
-					$twitterURL = 'https://twitter.com/intent/tweet?text='.$sharedTitle.'&amp;url='.$sharedURL;
-					$facebookURL = 'https://www.facebook.com/sharer/sharer.php?u='.$sharedURL;
-					$linkedInURL = 'https://www.linkedin.com/shareArticle?mini=true&url='.$sharedURL.'&amp;title='.$sharedTitle;
-
-					$popup = '<h2>Share</h2><a class="close" href="javascript:;">&times;</a><div class="content">';
-					$sharelinks = '<div class="social_buttons">';
-					$sharelinks .= '<ul>';
-					$sharelinks .= '<li><a href="'.$facebookURL.'" onclick="window.open(this.href, \'facebookwindow\',\'left=20,top=20,width=700,height=500,toolbar=0,resizable=1\'); return false;"><i class="btm_facebook"></i></a></li>';
-					$sharelinks .= '<li><a href="'.$twitterURL.'" onclick="window.open(this.href, \'twitterwindow\',\'left=20,top=20,width=600,height=300,toolbar=0,resizable=1\'); return false;"><i class="btm_twitter"></i></a></li>';
-					$sharelinks .= '<li><a href="'.$linkedInURL.'" onclick="window.open(this.href, \'linkedInwindow\',\'left=20,top=20,width=600,height=550,toolbar=0,resizable=1\'); return false;"><i class="btm_linkedin"></i></a></li>';
-					$sharelinks .= '</ul></div>';
-					$popup .= '<div class="link-column"><label>'.__( 'Embed Link', 'badgeos' ).':</label> <input type="text" value="'.$new_badgeos_embed_url.'" stype="width:70%" name="badgeos-embed-link" name="badgeos-embed-link"></div>';
-					$popup .= '<div class="share-column">'.$sharelinks.'</div>';
-					$popup .= '</div>';
-
-					// Setup our revoke URL
-					$revoke_url = add_query_arg( array(
-						'action'         	=> 'revoke',
-						'user_id'        	=> absint( $user->ID ),
-						'achievement_id' 	=> absint( $achievement->ID ),
-						'entry_id' 				=> absint( $achievement->entry_id ),
-					) );
-
-					$dirs = wp_upload_dir();
-					$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
-					$basedir = trailingslashit( $dirs[ 'basedir' ] );
-					$badge_directory = trailingslashit( $basedir.'user_badges/'.$user->ID );
-					$badge_url = trailingslashit( $baseurl.'user_badges/'.$user->ID );
-					
-					echo '<tr>';
-						if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
-							echo '<td><img src="'.$badge_url.$achievement->baked_image.'" height="50" with="50" />';
-						} else {
-							echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
-						}
-						
-						echo '<td>', edit_post_link( $achievement->achievement_title, '', '', $achievement->ID ), ' </td>';
-						echo '<td><a class="badgeos_share_popup" data-bg="'.$achievement->ID.'" data-eid="'.$achievement->entry_id.'" data-uid="'.$user->ID.'" href="javascript:;">Share</a><div id="open_badge_share_box_id'.$achievement->entry_id.'" class="open_badge_share_box_id" style="display:none; position:absolute;">'.$popup.'</div></td>';
-						echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';
-					echo '</tr>';
-
-					$achievement_ids[] = $achievement->achievement_id;
-				}
 			}
-			echo '</table>';
+		echo '</tr></thead>';
+		$badgeos_embed_url       = get_permalink( get_option( 'badgeos_embed_url' ) ); 
+		$badgeos_evidence_page_id		= get_option( 'badgeos_evidence_url' );
+		foreach ( $achievements as $achievement ) {
+			if( $achievement->achievement_type != 'step' ) {
+				$sharedTitle = $achievement->achievement_title;
+				$new_badgeos_embed_url 		= add_query_arg( 'bg', $achievement->ID, $badgeos_embed_url );
+				$new_badgeos_embed_url  	= add_query_arg( 'eid', $achievement->entry_id, $new_badgeos_embed_url );
+				$new_badgeos_embed_url  	= add_query_arg( 'uid', $user->ID, $new_badgeos_embed_url );
+				
+				$sharedURL  = get_permalink( $achievement->ID );
+				$sharedURL  = add_query_arg( 'bg', $achievement->ID, $sharedURL );
+				$sharedURL  = add_query_arg( 'eid', $achievement->entry_id, $sharedURL );
+				$sharedURL  = add_query_arg( 'uid', $user->ID, $sharedURL );
+				$sharedURL  = add_query_arg( 'tn', time(), $sharedURL );
+				$sharedURL  = urlencode( $sharedURL );     
+		
+				$twitterURL = 'https://twitter.com/intent/tweet?text='.$sharedTitle.'&amp;url='.$sharedURL;
+				$facebookURL = 'https://www.facebook.com/sharer/sharer.php?u='.$sharedURL;
+				$linkedInURL = 'https://www.linkedin.com/shareArticle?mini=true&url='.$sharedURL.'&amp;title='.$sharedTitle;
+
+				$popup = '<h2>Share</h2><a class="close" href="javascript:;">&times;</a><div class="content">';
+				$sharelinks = '<div class="social_buttons">';
+				$sharelinks .= '<ul>';
+				$sharelinks .= '<li><a href="'.$facebookURL.'" onclick="window.open(this.href, \'facebookwindow\',\'left=20,top=20,width=700,height=500,toolbar=0,resizable=1\'); return false;"><i class="btm_facebook"></i></a></li>';
+				$sharelinks .= '<li><a href="'.$twitterURL.'" onclick="window.open(this.href, \'twitterwindow\',\'left=20,top=20,width=600,height=300,toolbar=0,resizable=1\'); return false;"><i class="btm_twitter"></i></a></li>';
+				$sharelinks .= '<li><a href="'.$linkedInURL.'" onclick="window.open(this.href, \'linkedInwindow\',\'left=20,top=20,width=600,height=550,toolbar=0,resizable=1\'); return false;"><i class="btm_linkedin"></i></a></li>';
+				$sharelinks .= '</ul></div>';
+				$iframe = ' <iframe src="'.htmlentities( $new_badgeos_embed_url ).'"></iframe> ';
+				$popup .= '<div class="link-column"><label>'.__( 'Embed Link', 'badgeos' ).':</label> <textarea class="badgeos-share-card">'.$iframe.'</textarea></div>';
+				$popup .= '<div class="share-column">'.$sharelinks.'</div>';
+				$popup .= '</div>';
+
+				// Setup our revoke URL
+				$revoke_url = add_query_arg( array(
+					'action'         	=> 'revoke',
+					'user_id'        	=> absint( $user->ID ),
+					'achievement_id' 	=> absint( $achievement->ID ),
+					'entry_id' 			=> absint( $achievement->entry_id ),
+				) );
+
+				$dirs = wp_upload_dir();
+				$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+				$basedir = trailingslashit( $dirs[ 'basedir' ] );
+				$badge_directory = trailingslashit( $basedir.'user_badges/'.$user->ID );
+				$badge_url = trailingslashit( $baseurl.'user_badges/'.$user->ID );
+				
+				echo '<tr>';
+					if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+						echo '<td><img src="'.$badge_url.$achievement->baked_image.'" height="50" with="50" />';
+					} else {
+						echo '<td>'. badgeos_get_achievement_post_thumbnail( $achievement->ID, array( 50, 50 ) ) .'</td>';
+					}
+					if ( current_user_can( badgeos_get_manager_capability() ) ) {
+						echo '<td>';
+							edit_post_link( $sharedTitle, '', '', $achievement->ID );
+						echo '</td>';
+					} else {
+						
+						$evidence_url 	= get_permalink( $badgeos_evidence_page_id );
+						$evidence_url   = add_query_arg( 'bg', $achievement->ID, $evidence_url );
+						$evidence_url   = add_query_arg( 'eid', $achievement->entry_id, $evidence_url );
+						$evidence_url   = add_query_arg( 'uid', $achievement->user_id, $evidence_url );
+
+						echo '<td><a href="'.$evidence_url.'">'.$sharedTitle.'</a></td>';
+					}
+					echo '<td><a class="badgeos_share_popup" data-bg="'.$achievement->ID.'" data-eid="'.$achievement->entry_id.'" data-uid="'.$user->ID.'" href="javascript:;">Share</a><div id="open_badge_share_box_id'.$achievement->entry_id.'" class="open_badge_share_box_id" style="display:none; position:absolute;">'.$popup.'</div></td>';
+					if ( current_user_can( badgeos_get_manager_capability() ) ) {
+						echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';
+					}
+				echo '</tr>';
+
+				$achievement_ids[] = $achievement->ID;
+			}
 		}
+		echo '</table>';
+		//}
 
 		echo '</td></tr>';
 		echo '</table>';
