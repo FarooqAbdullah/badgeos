@@ -41,6 +41,7 @@ class Open_Badge {
 	function badgeos_template_pages( $page_template ) {
 		
 		global $post;
+		
 		$achievement_id = 0;
         if( ! empty( $_REQUEST['bg'] ) ) {
             $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
@@ -344,7 +345,9 @@ class Open_Badge {
 	 * @return none
 	 */ 
 	public function bake_user_badge( $entry_id, $user_id, $achievement_id ) {
+		
 		global $wpdb;
+
 		$badge = get_post( $achievement_id );
 		if( $badge ) {
 			

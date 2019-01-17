@@ -35,6 +35,7 @@ class open_badge_options {
      * Validate badgeos data
      */
     public function badgeos_validate_open_badge() {
+        
         global $wpdb;
         
         $achievement_id = 0;
@@ -97,6 +98,7 @@ class open_badge_options {
      * Check if badge is not expired
      */
     public function badgeos_validate_expiry() {
+        
         global $wpdb;
         
         $achievement_id = 0;
