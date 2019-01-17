@@ -41,9 +41,20 @@ class Open_Badge {
 	function badgeos_template_pages( $page_template ) {
 		
 		global $post;
-		$achievement_id 	= isset( $_REQUEST[ 'bg' ] ) ? $_REQUEST[ 'bg' ]:0;
-		$entry_id 			= isset( $_REQUEST[ 'eid' ] ) ? $_REQUEST[ 'eid' ]:0;  
-		$user_id 			= isset( $_REQUEST[ 'uid' ] ) ? $_REQUEST[ 'uid' ]:0;
+		$achievement_id = 0;
+        if( ! empty( $_REQUEST['bg'] ) ) {
+            $achievement_id 	= sanitize_text_field( $_REQUEST['bg'] );
+        }
+        
+        $entry_id = 0;
+        if( ! empty( $_REQUEST['eid'] ) ) {
+            $entry_id  	        = sanitize_text_field( $_REQUEST['eid'] );
+        }
+        
+        $user_id = 0;
+        if( ! empty( $_REQUEST['uid'] ) ) {
+            $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
+        }
 		
 		if( $post->ID == $this->badgeos_assertion_page_id ) {
 			$this->badgeos_generate_assertion( $user_id, $entry_id, $achievement_id );

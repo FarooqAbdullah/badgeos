@@ -293,10 +293,11 @@ function badgeos_user_profile_data( $user = null ) {
 
 		echo '<br/>';
 
-		// Output markup for awarding achievement for user
-		badgeos_profile_award_achievement( $user, $achievement_ids );
+		
 
 	}
+	// Output markup for awarding achievement for user
+	badgeos_profile_award_achievement( $user, $achievement_ids );
 
 }
 add_action( 'show_user_profile', 'badgeos_user_profile_data' );
