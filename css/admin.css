@@ -242,6 +242,15 @@ Shortcode Embed styles
   .badgeos-share-card{
 	width: 100% !important;
   }
+  .badgeos_hint {
+	font-weight: normal;
+	font-size: 13px;
+    font-style: italic;
+	margin: 2px 0 5px;
+	color: #666;
+	
+}
+  }
   @media screen and (max-width: 700px){
 	.box{
 	  width: 70%;

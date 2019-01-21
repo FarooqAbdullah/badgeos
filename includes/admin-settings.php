@@ -377,53 +377,58 @@ function badgeos_open_badge_options() {
 		<form method="post">
 			<table class="form-table">
 				<tr valign="top">
-					<td align="left" valign="top">
-                        <?php _e( 'Assertion URL', 'badgeos' ); ?>
+					<td align="left" width="20%" valign="top">
+                        <?php _e( 'Assertion Page', 'badgeos' ); ?>
                     </td>
-                    <td align="left">
+                    <td width="80%" align="left">
                         <label for="badgeos_assertion_url">
-                           <?php wp_dropdown_pages( array('selected'=>$badgeos_assertion_url, 'name'=> 'badgeos_assertion_url', 'id'=>'badgeos_assertion_url' ) ); ?> 
+                           <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Assertion Page', 'badgeos' ), 'selected'=>$badgeos_assertion_url, 'name'=> 'badgeos_assertion_url', 'id'=>'badgeos_assertion_url' ) ); ?> 
                         </label>
+						<p class="badgeos_hint">Please, select a page for assertion json data.</p>
                     </td>
 				</tr>
 				<tr valign="top">
 					<td align="left" valign="top">
-                        <?php _e( 'Issuer URL', 'badgeos' ); ?>
+                        <?php _e( 'Issuer Page', 'badgeos' ); ?>
                     </td>
                     <td align="left">
                         <label for="badgeos_issuer_url">
-                           <?php wp_dropdown_pages( array('selected'=>$badgeos_issuer_url, 'name'=> 'badgeos_issuer_url', 'id'=>'badgeos_issuer_url' ) ); ?> 
+                           <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Issuer Page', 'badgeos' ), 'selected'=>$badgeos_issuer_url, 'name'=> 'badgeos_issuer_url', 'id'=>'badgeos_issuer_url' ) ); ?> 
                         </label>
+						<p class="badgeos_hint">Please, select a page for issuer json data.</p>
                     </td>
 				</tr>
 				<tr valign="top">
 					<td align="left" valign="top">
-                        <?php _e( 'Badge URL', 'badgeos' ); ?>
+                        <?php _e( 'Badge Page', 'badgeos' ); ?>
                     </td>
                     <td align="left">
                         <label for="badgeos_json_url">
-                           <?php wp_dropdown_pages( array('selected'=>$badgeos_json_url, 'name'=> 'badgeos_json_url', 'id'=>'badgeos_json_url' ) ); ?> 
+                           <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Badge Page', 'badgeos' ), 'selected'=>$badgeos_json_url, 'name'=> 'badgeos_json_url', 'id'=>'badgeos_json_url' ) ); ?> 
                         </label>
+						<p class="badgeos_hint">Please, select a page for badge json data.</p>
                     </td>
 				</tr>
 				<tr valign="top">
 					<td align="left" valign="top">
-                        <?php _e( 'Evidence URL', 'badgeos' ); ?>
+                        <?php _e( 'Evidence Page', 'badgeos' ); ?>
                     </td>
                     <td align="left">
                         <label for="badgeos_evidence_url">
-                           <?php wp_dropdown_pages( array('selected'=>$badgeos_evidence_url, 'name'=> 'badgeos_evidence_url', 'id'=>'badgeos_evidence_url' ) ); ?> 
+                           <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Evidence Page', 'badgeos' ), 'selected'=>$badgeos_evidence_url, 'name'=> 'badgeos_evidence_url', 'id'=>'badgeos_evidence_url' ) ); ?> 
                         </label>
+						<p class="badgeos_hint">Please, select a page for badge evidence and add [badgeos_evidence] shortcode in page description.</p>
                     </td>
 				</tr>
 				<tr valign="top">
 					<td align="left" valign="top">
-                        <?php _e( 'Embed URL', 'badgeos' ); ?>
+                        <?php _e( 'Embed Page', 'badgeos' ); ?>
                     </td>
                     <td align="left">
                         <label for="badgeos_embed_url">
-                           <?php wp_dropdown_pages( array('selected'=>$badgeos_embed_url, 'name'=> 'badgeos_embed_url', 'id'=>'badgeos_embed_url' ) ); ?> 
+                           <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Embed Page', 'badgeos' ), 'selected'=>$badgeos_embed_url, 'name'=> 'badgeos_embed_url', 'id'=>'badgeos_embed_url' ) ); ?> 
                         </label>
+						<p class="badgeos_hint">Please, select a page for sharing the badge with Embed badge code. This page url will be used in embeding iframe for 3rd party websites.</p>
                     </td>
 				</tr>
 			</table>
