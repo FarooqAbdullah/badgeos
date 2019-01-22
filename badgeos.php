@@ -73,6 +73,7 @@ class BadgeOS {
 		require_once( $this->directory_path . 'includes/class.BadgeOS_Editor_Shortcodes.php' );
 		require_once( $this->directory_path . 'includes/class.BadgeOS_Plugin_Updater.php' );
 		require_once( $this->directory_path . 'includes/class.BadgeOS_Shortcode.php' );
+		require_once( $this->directory_path . 'includes/open_badges/open-badge-install-pages.php' );
 		require_once( $this->directory_path . 'includes/open_badges/open_badge_options.php' );
 		require_once( $this->directory_path . 'includes/open_badges/class_open_badge.php' );
 		
