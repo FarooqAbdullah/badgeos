@@ -155,9 +155,9 @@ function badgeos_settings_page() {
 				<tr valign="top">
 					<th scope="row"><label for="congrat_email_body"><?php _e( 'Congratulation Email Body:', 'badgeos' ); ?></label></th>
 					<td>
-						<?php wp_editor( $congrat_email_body , 'badgeos_settings[congrat_email_body]', array('media_buttons' => false,'textarea_rows' => 5) ); ?>
+						<?php wp_editor( $congrat_email_body , 'badgeos_congrat_email_body', array( 'textarea_name'=> 'badgeos_settings[congrat_email_body]', 'media_buttons' => false,'textarea_rows' => 5) ); ?>
 						<p>
-							<b>Shortcodes:</b> [achievement_type], [achievement_title], [points], [user_email], [user_name]
+							<b>Shortcodes:</b> [achievement_type], [achievement_title], [achievement_image], [points], [user_email], [user_name], [user_profile_link]
 						</p>
 					</td>
 				</tr>

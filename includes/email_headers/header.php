@@ -67,18 +67,14 @@
             .ExternalClass div {
         line-height: 100%;
       }
-      .apple-link a {
-        color: inherit !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        font-weight: inherit !important;
-        line-height: inherit !important;
-        text-decoration: none !important;
+      
+      .btn-primary {
+        width:150px;display:table-cell;vertical-align:middle;border-radius:2px;font-size:16px;font-family:Arial,Helvetica,sans-serif;font-weight:bold;color:#fff;text-decoration:none;background-color:#737373;padding:13px 0
       }
-      .btn-primary table td:hover {
-        background-color: #34495e !important;
-      }
-      .btn-primary a:hover {
+
+      
+
+      .btn-primary:hover {
         background-color: #34495e !important;
         border-color: #34495e !important;
       }

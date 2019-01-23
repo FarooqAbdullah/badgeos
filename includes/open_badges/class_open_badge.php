@@ -56,19 +56,20 @@ class Open_Badge {
         if( ! empty( $_REQUEST['uid'] ) ) {
             $user_id  	        = sanitize_text_field( $_REQUEST['uid'] );
         }
-		
-		if( $post->ID == $this->badgeos_assertion_page_id ) {
-			$this->badgeos_generate_assertion( $user_id, $entry_id, $achievement_id );
-			exit;
-		} else if( $post->ID == $this->badgeos_json_page_id ) {
-			$this->badgeos_generate_badge( $user_id, $entry_id, $achievement_id );
-			exit;
-		} else if( $post->ID == $this->badgeos_issuer_page_id ) {
-			$this->badgeos_generate_issuer( $user_id, $entry_id, $achievement_id );
-			exit;
-		} else if( $post->ID == $this->badgeos_embed_url_id ) {
-			$this->badgeos_generate_embed( $user_id, $entry_id, $achievement_id );
-			exit;
+		if( $post ) {
+			if( $post->ID == $this->badgeos_assertion_page_id ) {
+				$this->badgeos_generate_assertion( $user_id, $entry_id, $achievement_id );
+				exit;
+			} else if( $post->ID == $this->badgeos_json_page_id ) {
+				$this->badgeos_generate_badge( $user_id, $entry_id, $achievement_id );
+				exit;
+			} else if( $post->ID == $this->badgeos_issuer_page_id ) {
+				$this->badgeos_generate_issuer( $user_id, $entry_id, $achievement_id );
+				exit;
+			} else if( $post->ID == $this->badgeos_embed_url_id ) {
+				$this->badgeos_generate_embed( $user_id, $entry_id, $achievement_id );
+				exit;
+			}
 		}
 		
 		return $page_template;

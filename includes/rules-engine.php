@@ -228,6 +228,7 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 			
 			$user_to_title = '';
 			$user_email = '';
+			$to_user_id = $record[ 'user_id'];
 			$user_to = get_user_by( 'ID', $record[ 'user_id'] );
 			if( $user_to ) {
 				$user_to_title = $user_to->display_name;
@@ -258,7 +259,25 @@ function badgeos_send_congrats_email( $entry_id, $achievement_id, $user_id ) {
 			$email_content = str_replace('[points]', $points, $email_content ); 
 			$email_content = str_replace('[user_email]', $user_email, $email_content ); 
 			$email_content = str_replace('[user_name]', $user_to_title, $email_content ); 
+			$email_content = str_replace('[achievement_image]', $baked_image, $email_content ); 
+			$email_content = str_replace('[user_profile_link]', get_edit_profile_url( $to_user_id ), $email_content ); 
 			
+			$eid  = $entry_id;
+			$aid  = $achievement_id;
+			$uid  = $user_id;
+			
+			$ach_title 					= $achievement_title;
+			$issue_date 				= $record[ 'dateadded' ];
+			$to_email 					= $user_email;
+
+			$cong_text = get_post_meta( $aid , '_badgeos_congratulations_text', true );
+
+			$evidence_page_id			= get_option( 'badgeos_evidence_url' );
+			$badgeos_evidence_url 		= get_permalink( $evidence_page_id );
+			$badgeos_evidence_url 		= add_query_arg( 'bg', $achievement_id, $badgeos_evidence_url );
+			$badgeos_evidence_url  		= add_query_arg( 'eid', $entry_id, $badgeos_evidence_url );
+			$badgeos_evidence_url  		= add_query_arg( 'uid', $user_id, $badgeos_evidence_url );
+			$date_format 				= get_option( 'date_format' );
 			include( 'email_headers/header.php' );
 			?>
 				<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">

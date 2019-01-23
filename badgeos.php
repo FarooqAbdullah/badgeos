@@ -249,9 +249,17 @@ class BadgeOS {
 			$badgeos_settings['remove_data_on_uninstall']   = null;
 			$badgeos_settings['congrat_email_subject'] = __( 'New Achievement Awarded: [achievement_title]', 'badgeos' );
 
-			$body = __( 'Dear [user_name],', 'badgeos' ) . '<br><br>';
-			$body .= __( 'You have earned a new badge "[achievement_title]". [points] points are also added in your point balance.', 'badgeos' ) . '<br><br>';
-			$body .= __( 'Thanks,', 'badgeos' );
+			$body = '<table border="0" cellspacing="0" cellpadding="0" align="center">';
+			$body .= '<tr valign="top">';
+			$body .= '<td>';
+			$body .= '<p>[user_name]</p>';
+			$body .= '<p>'.__( 'You have earned a new badge "[achievement_title]". [points] points are also added in your point balance. To view this badge and share it on social networks click on the "Share" button below.', 'badgeos' ).'</p>';
+			$body .= '</td></tr>';
+			$body .= '<tr valign="top"><td align="center">[achievement_image]</td></tr>';
+			$body .= '<tr valign="top"><td></td></tr>';
+			$body .= '<tr valign="top"><td align="center"><a href="[user_profile_link]" class="btn-primary">Share</a></td></tr>';
+			$body .= '</table>';
+
 			$badgeos_settings['congrat_email_body'] = $body;
 			update_option( 'badgeos_settings', $badgeos_settings );
 		}
@@ -411,4 +419,15 @@ function badgeos_run_database_script() {
 		$wpdb->query( $sql );
 	}
 }
+
+function badgeos_theme_setup() {
+	
+	add_theme_support( 'custom-logo', array(
+		'height'      => 100,
+		'width'       => 400,
+		'flex-width' => true,
+	) );
+
+}
+add_action( 'after_setup_theme', 'badgeos_theme_setup' );
 
