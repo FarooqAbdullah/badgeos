@@ -413,7 +413,7 @@ class Open_Badge {
 				$badgeos_evidence_url  	= add_query_arg( 'eid', $entry_id, $badgeos_evidence_url );
 				$badgeos_evidence_url  	= add_query_arg( 'uid', $user_id, $badgeos_evidence_url );
 
-				$identity_id = $this->get_identity_id( $user_id, $entity_id, $achievement_id );
+				$identity_id = $this->get_identity_id( $user_id, $entry_id, $achievement_id );
 
 				$json = array(
 					'@context'	=> 'https://w3id.org/openbadges/v2',
@@ -477,7 +477,7 @@ class Open_Badge {
 	 * 
 	 * @return none
 	 */ 
-	function get_identity_id( $user_id, $entity_id, $achievement_id ) {
+	function get_identity_id( $user_id, $entry_id, $achievement_id ) {
 		$user = get_user_by( 'ID', $user_id );
 		return $user->user_email;
 	}

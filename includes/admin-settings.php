@@ -384,7 +384,7 @@ function badgeos_open_badge_options() {
                         <label for="badgeos_assertion_url">
                            <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Assertion Page', 'badgeos' ), 'selected'=>$badgeos_assertion_url, 'name'=> 'badgeos_assertion_url', 'id'=>'badgeos_assertion_url' ) ); ?> 
                         </label>
-						<p class="badgeos_hint"><?php _e( 'Open badge needs assertion data in json format for validation purpose. Please, select a page where assertion json data will show up.', 'badgeos' ); ?></p>
+						<p class="badgeos_hint"><?php _e( 'Please, select a page where assertion json data will show up. Open badge needs assertion data in json format for validation purpose.', 'badgeos' ); ?></p>
                     </td>
 				</tr>
 				<tr valign="top">
@@ -395,7 +395,7 @@ function badgeos_open_badge_options() {
                         <label for="badgeos_issuer_url">
                            <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Issuer Page', 'badgeos' ), 'selected'=>$badgeos_issuer_url, 'name'=> 'badgeos_issuer_url', 'id'=>'badgeos_issuer_url' ) ); ?> 
                         </label>
-						<p class="badgeos_hint"><?php _e( 'Open badge needs issuer data in json format for validation purpose. Please, select a page where issuer json data will show up.', 'badgeos' ); ?></p>
+						<p class="badgeos_hint"><?php _e( 'Please, select a page where issuer json data will show up. Open badge needs issuer data in json format for validation purpose.', 'badgeos' ); ?></p>
                     </td>
 				</tr>
 				<tr valign="top">
@@ -406,7 +406,7 @@ function badgeos_open_badge_options() {
                         <label for="badgeos_json_url">
                            <?php wp_dropdown_pages( array( 'show_option_none' => __( 'Select Badge Page', 'badgeos' ), 'selected'=>$badgeos_json_url, 'name'=> 'badgeos_json_url', 'id'=>'badgeos_json_url' ) ); ?> 
                         </label>
-						<p class="badgeos_hint"><?php _e( 'Open badge needs badge data in json format for validation purpose. Please, select a page where badge json data will show up.', 'badgeos' ); ?></p>
+						<p class="badgeos_hint"><?php _e( 'Please, select a page where badge json data will show up. Open badge needs badge data in json format for validation purpose.', 'badgeos' ); ?></p>
                     </td>
 				</tr>
 				<tr valign="top">

@@ -2,7 +2,7 @@
   global $achievement_title, $achievement_id;
   $admin_email   = get_bloginfo('admin_email');
   $website_title = get_bloginfo('name');
-  
+  $plugin_slug = badgeos_get_directory_url();
 ?>
                    <br>
                   <br>
@@ -21,7 +21,7 @@
                           </tr>
                           <tr valign="top">
                             <td width="55"><?php echo get_avatar( $uid, 55 ); ?> </td>
-                            <td width="34"><img src="<?php echo plugins_url( 'badgeos/images/email_quote_icon.png' ); ?>" style="display:block" class="CToWUd" width="34" height="40" border="0"></td>
+                            <td width="34"><img src="<?php echo  $plugin_slug.'images/email_quote_icon.png'; ?>" style="display:block" class="CToWUd" width="34" height="40" border="0"></td>
                             <td style="background-color:#fff" width="370">
                               <table cellspacing="0" cellpadding="0" border="0">
                                 <tr width="370" valign="top" height="18">
@@ -79,7 +79,7 @@
                                       <td colspan="2"><h3 style="font:bold 12px/1 Arial,sans-serif;color:#aaaaaa!important;margin:1em 0 .25em;letter-spacing:0.1em"> Evidence</h3></td>
                                     </tr>
                                     <tr valign="center">
-                                      <td><img src="<?php echo plugins_url( 'badgeos/images/evidence.png' ); ?>" style="display:block;margin:0 0 0 10px" class="CToWUd"></td>
+                                      <td><img src="<?php echo $plugin_slug.'images/evidence.png'; ?>" style="display:block;margin:0 0 0 10px" class="CToWUd"></td>
                                       <td><p style="font:normal 12px/20px Arial,sans-serif;margin:0"> <a href="<?php echo $badgeos_evidence_url;?>" style="color:#2499bb;text-decoration:none;font-weight:bold" target="_blank">View Evidence</a> </p></td>
                                     </tr>
                                   </table>

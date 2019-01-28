@@ -197,9 +197,7 @@ function badgeos_user_profile_data( $user = null ) {
 			echo '<th>'. __( 'Image', 'badgeos' ) .'</th>';
 			echo '<th>'. __( 'Name', 'badgeos' ) .'</th>';
 			echo '<th>'. __( 'Share', 'badgeos' ) .'</th>';
-			if ( current_user_can( badgeos_get_manager_capability() ) ) {
-				echo '<th>'. __( 'Action', 'badgeos' ) .'</th>';
-			}
+			echo '<th>'. __( 'Action', 'badgeos' ) .'</th>';
 		echo '</tr></thead>';
 		$badgeos_embed_url       = get_permalink( get_option( 'badgeos_embed_url' ) ); 
 		$badgeos_evidence_page_id		= get_option( 'badgeos_evidence_url' );
@@ -240,6 +238,13 @@ function badgeos_user_profile_data( $user = null ) {
 					'achievement_id' 	=> absint( $achievement->ID ),
 					'entry_id' 			=> absint( $achievement->entry_id ),
 				) );
+				
+				$download_url= add_query_arg( array(
+					'action'         	=> 'download',
+					'user_id'        	=> absint( $user->ID ),
+					'achievement_id' 	=> absint( $achievement->ID ),
+					'entry_id' 			=> absint( $achievement->entry_id ),
+				) );
 
 				$dirs = wp_upload_dir();
 				$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
@@ -267,9 +272,21 @@ function badgeos_user_profile_data( $user = null ) {
 						echo '<td><a href="'.$evidence_url.'">'.$sharedTitle.'</a></td>';
 					}
 					echo '<td><a class="badgeos_share_popup" data-bg="'.$achievement->ID.'" data-eid="'.$achievement->entry_id.'" data-uid="'.$user->ID.'" href="javascript:;">Share</a><div id="open_badge_share_box_id'.$achievement->entry_id.'" class="open_badge_share_box_id" style="display:none; position:absolute;">'.$popup.'</div></td>';
+					echo '<td>';
+					
+					$show_sep = false;
 					if ( current_user_can( badgeos_get_manager_capability() ) ) {
-						echo '<td> <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span></td>';
+						echo ' <span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $revoke_url, 'badgeos_revoke_achievement' ) ).'">' . __( 'Revoke Award', 'badgeos' ) . '</a></span>';
+						$show_sep = true;
 					}
+					
+					if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+						if( $show_sep )
+							echo '&nbsp;|&nbsp;';
+						echo '<span class="delete"><a class="error" href="'.esc_url( wp_nonce_url( $download_url, 'badgeos_download_achievement' ) ).'">' . __( 'Download', 'badgeos' ) . '</a></span>';
+					}
+					
+					echo '</td>';
 				echo '</tr>';
 
 				$achievement_ids[] = $achievement->ID;
@@ -445,7 +462,7 @@ function badgeos_profile_award_achievement( $user = null, $achievement_ids = arr
  * @return void
  */
 function badgeos_process_user_data() {
-
+	global $wpdb;
 	//verify uesr meets minimum role to view earned badges
 	if ( current_user_can( badgeos_get_manager_capability() ) ) {
 
@@ -477,6 +494,51 @@ function badgeos_process_user_data() {
 			exit();
 
 		}
+
+	}
+
+	// Process revoking achievement from a user
+	if ( isset( $_GET['action'] ) && 'download' == $_GET['action'] && isset( $_GET['entry_id'] ) && isset( $_GET['user_id'] ) && isset( $_GET['achievement_id'] ) ) {
+
+		// Verify our nonce
+		check_admin_referer( 'badgeos_download_achievement' );
+
+		$entry_id 		= sanitize_text_field( $_REQUEST['entry_id'] );
+		$user_id 		= sanitize_text_field( $_REQUEST['user_id'] );
+		$achievement_id = sanitize_text_field( $_REQUEST['achievement_id'] );
+
+		$where = " entry_id = '".$entry_id."' and ID = '".$achievement_id."' and user_id='".$user_id."'";
+
+		badgeos_run_database_script();
+
+		$table_name = $wpdb->prefix . 'badgeos_achievements';
+		$achievements = $wpdb->get_results( "SELECT * FROM $table_name WHERE $where order by dateadded" );
+		if( count( $achievements ) > 0 ) {
+			$achievement = $achievements[0];
+
+			$dirs = wp_upload_dir();
+			$baseurl = trailingslashit( $dirs[ 'baseurl' ] );
+			$basedir = trailingslashit( $dirs[ 'basedir' ] );
+			$badge_directory = trailingslashit( $basedir.'user_badges/'.$user_id );
+			$badge_url = trailingslashit( $baseurl.'user_badges/'.$user_id );
+			if( ! empty( $achievement->baked_image ) && file_exists( $badge_directory.$achievement->baked_image ) ) {
+
+				$file_name = $badge_directory.$achievement->baked_image;
+				header('Content-Description: File Transfer');
+				header('Content-Type: application/octet-stream');
+				header('Content-Disposition: attachment; filename="'.basename($achievement->baked_image).'"');
+				header('Expires: 0');
+				header('Cache-Control: must-revalidate');
+				header('Pragma: public');
+				header('Content-Length: ' . filesize($file_name));
+				flush(); // Flush system output buffer
+				readfile($file_name);
+				exit;
+
+			}
+		}
+
+		
 
 	}
 

@@ -44,8 +44,8 @@ function badgeos_config_pages_func(){
         
         $json_page_id = wp_insert_post ([
             'post_type' =>'page',        
-            'post_name' => 'Badge Json',
-            'post_title' => 'Badge Json',
+            'post_name' => 'Badge Page',
+            'post_title' => 'Badge Page',
             'post_content' => 'This page will display badge json only.',
             'post_status' => 'publish',
         ]);
@@ -57,8 +57,8 @@ function badgeos_config_pages_func(){
     if( !isset( $issuer_page ) || intval( $issuer_page ) < 1 || empty( get_permalink( $issuer_page ) ) ) {
         $issuer_page_id = wp_insert_post ([
             'post_type' =>'page',        
-            'post_name' => 'Issuer Json',
-            'post_title' => 'Issuer Json',
+            'post_name' => 'Issuer Page',
+            'post_title' => 'Issuer Page',
             'post_content' => 'This page will display issuer json only.',
             'post_status' => 'publish',
         ]);
