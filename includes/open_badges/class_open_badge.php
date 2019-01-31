@@ -16,8 +16,9 @@ class Open_Badge {
 	public $badgeos_json_page_id 		= 0; 
 	public $badgeos_issuer_page_id 		= 0;
 	public $badgeos_evidence_page_id 	= 0;
-	public $badgeos_embed_url_id 	= 0;
-
+	public $badgeos_embed_url_id 		= 0;
+	
+	public $badgeos_salt 				= 'BADGEOSOBI';
     /**
 	 * Instantiate the Opne Badge.
 	 */
@@ -207,8 +208,8 @@ class Open_Badge {
 				'id'	=> $badgeos_assertion_url,
 				'recipient'	=> array(
 					'type'	=> 'email',
-					'hashed'	=> false,
-					'salt'	=> 'BadgeOSOBI',
+					'hashed'	=> true,
+					'salt'	=> $this->$badgeos_salt,
 					'identity'	=> $identity_id
 				),
 				'badge'	=> $badgeos_json_url,
@@ -421,8 +422,8 @@ class Open_Badge {
 					'id'	=> $badgeos_assertion_url,
 					'recipient'	=> array(
 						'type'	=> 'email',
-						'hashed'	=> false,
-						'salt'	=> 'BadgeOSOBI',
+						'hashed'	=> true,
+						'salt'	=> $this->$badgeos_salt,
 						'identity'	=> $identity_id
 					),
 					'badge'	=> array(
@@ -479,7 +480,8 @@ class Open_Badge {
 	 */ 
 	function get_identity_id( $user_id, $entry_id, $achievement_id ) {
 		$user = get_user_by( 'ID', $user_id );
-		return $user->user_email;
+
+		return 'sha256$' . hash('sha256', $user->user_email . $this->$badgeos_salt);
 	}
 
 	/**
