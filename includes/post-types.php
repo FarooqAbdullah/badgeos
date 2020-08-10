@@ -18,9 +18,10 @@
 function badgeos_register_post_types() {
 	global $badgeos;
 
-	// Register our Achivement Types CPT
-	register_post_type( 'achievement-type', array(
-		'labels'             => array(
+	// Register our achievement Types CPT
+    $badgeos_settings = ( $exists = get_option( 'badgeos_settings' ) ) ? $exists : array();
+    register_post_type( $badgeos_settings['achievement_main_post_type'], array(
+        'labels'             => array(
 			'name'               => __( 'Achievement Types', 'badgeos' ),
 			'singular_name'      => __( 'Achievement Type', 'badgeos' ),
 			'add_new'            => __( 'Add New', 'badgeos' ),
@@ -50,7 +51,7 @@ function badgeos_register_post_types() {
 	) );
 
 	// Register our Step
-	register_post_type( 'step', array(
+    register_post_type( trim( $badgeos_settings['achievement_step_post_type'] ), array(
 		'labels'             => array(
 			'name'               => __( 'Steps', 'badgeos' ),
 			'singular_name'      => __( 'Step', 'badgeos' ),
@@ -79,104 +80,69 @@ function badgeos_register_post_types() {
 		'supports'           => array( 'title' ),
 
 	) );
-	badgeos_register_achievement_type( 'step', 'steps' );
-
-	// Register Submissions CPT
-	register_post_type( 'submission', array(
-		'labels'             => array(
-			'name'               => __( 'Submissions', 'badgeos' ),
-			'singular_name'      => __( 'Submission', 'badgeos' ),
-			'add_new'            => __( 'Add New', 'badgeos' ),
-			'add_new_item'       => __( 'Add New Submission', 'badgeos' ),
-			'edit_item'          => __( 'Edit Submission', 'badgeos' ),
-			'new_item'           => __( 'New Submission', 'badgeos' ),
-			'all_items'          => __( 'Submissions', 'badgeos' ),
-			'view_item'          => __( 'View Submission', 'badgeos' ),
-			'search_items'       => __( 'Search Submissions', 'badgeos' ),
-			'not_found'          => __( 'No submissions found', 'badgeos' ),
-			'not_found_in_trash' => __( 'No submissions found in Trash', 'badgeos' ),
-			'parent_item_colon'  => '',
-			'menu_name'          => __( 'Submissions', 'badgeos' )
-		),
-		'public'             => apply_filters( 'badgeos_public_submissions', false ),
-		'publicly_queryable' => apply_filters( 'badgeos_public_submissions', false ),
-		'show_ui'            => badgeos_user_can_manage_submissions(),
-		'show_in_menu'       => 'badgeos_badgeos',
-		'show_in_nav_menus'  => apply_filters( 'badgeos_public_submissions', false ),
-		'query_var'          => true,
-		'rewrite'            => true,
-		'capability_type'    => 'post',
-		'has_archive'        => apply_filters( 'badgeos_public_submissions', false ),
-		'hierarchical'       => false,
-		'menu_position'      => null,
-		'supports'           => array( 'title', 'editor', 'author', 'comments' )
-	) );
-
-
-	// Register Nominations CPT
-	register_post_type( 'nomination', array(
-		'labels'             => array(
-			'name'               => __( 'Nominations', 'badgeos' ),
-			'singular_name'      => __( 'Nomination', 'badgeos' ),
-			'add_new'            => __( 'Add New', 'badgeos' ),
-			'add_new_item'       => __( 'Add New Nomination', 'badgeos' ),
-			'edit_item'          => __( 'Edit Nomination', 'badgeos' ),
-			'new_item'           => __( 'New Nomination', 'badgeos' ),
-			'all_items'          => __( 'Nominations', 'badgeos' ),
-			'view_item'          => __( 'View Nomination', 'badgeos' ),
-			'search_items'       => __( 'Search Nominations', 'badgeos' ),
-			'not_found'          => __( 'No nominations found', 'badgeos' ),
-			'not_found_in_trash' => __( 'No nominations found in Trash', 'badgeos' ),
-			'parent_item_colon'  => '',
-			'menu_name'          => __( 'Nominations', 'badgeos' )
-		),
-		'public'             => apply_filters( 'badgeos_public_nominations', false ),
-		'publicly_queryable' => apply_filters( 'badgeos_public_nominations', false ),
-		'show_ui'            => badgeos_user_can_manage_submissions(),
-		'show_in_menu'       => 'badgeos_badgeos',
-		'show_in_nav_menus'  => apply_filters( 'badgeos_public_nominations', false ),
-		'query_var'          => true,
-		'rewrite'            => true,
-		'capability_type'    => 'post',
-		'has_archive'        => apply_filters( 'badgeos_public_nominations', false ),
-		'hierarchical'       => false,
-		'menu_position'      => null,
-		'supports'           => array( 'title', 'editor', 'author', 'comments' )
-	) );
+    badgeos_register_achievement_type( trim( $badgeos_settings['achievement_step_post_type'] ), 'steps' );
 
 	// Register Log Entries CPT
-	register_post_type( 'badgeos-log-entry', array(
-		'labels'             => array(
-			'name'               => __( 'Log Entries', 'badgeos' ),
-			'singular_name'      => __( 'Log Entry', 'badgeos' ),
-			'add_new'            => __( 'Add New', 'badgeos' ),
-			'add_new_item'       => __( 'Add New Log Entry', 'badgeos' ),
-			'edit_item'          => __( 'Edit Log Entry', 'badgeos' ),
-			'new_item'           => __( 'New Log Entry', 'badgeos' ),
-			'all_items'          => __( 'Log Entries', 'badgeos' ),
-			'view_item'          => __( 'View Log Entries', 'badgeos' ),
-			'search_items'       => __( 'Search Log Entries', 'badgeos' ),
-			'not_found'          => __( 'No Log Entries found', 'badgeos' ),
-			'not_found_in_trash' => __( 'No Log Entries found in Trash', 'badgeos' ),
-			'parent_item_colon'  => '',
-			'menu_name'          => __( 'Log Entries', 'badgeos' )
-		),
-		'public'             => false,
-		'publicly_queryable' => false,
-		'show_ui'            => current_user_can( badgeos_get_manager_capability() ),
-		'show_in_menu'       => 'badgeos_badgeos',
-		'show_in_nav_menus'  => false,
-		'query_var'          => true,
-		'rewrite'            => array( 'slug' => 'log' ),
-		'capability_type'    => 'post',
-		'has_archive'        => false,
-		'hierarchical'       => false,
-		'menu_position'      => null,
-		'supports'           => array( 'title', 'editor', 'author', 'comments' )
-	) );
+	badgeos_register_log_post_type();
 
 }
 add_action( 'init', 'badgeos_register_post_types' );
+
+/**
+ * Register our various achievement types for use in the rules engine
+ *
+ * @param  string $achievement_name_singular The singular name
+ * @param  string $achievement_name_plural  The plural name
+ * @return void
+ */
+function badgeos_register_ranks_type( $slug, $achievement_name_singular = '', $achievement_name_plural = '' ) {
+
+	$plural  = $achievement_name_plural;
+	if( empty( $plural ) )
+		$plural = $achievement_name_singular;
+
+    $GLOBALS['badgeos']->ranks_types[$slug] = array(
+        'single_name' => strtolower( $achievement_name_singular ),
+        'plural_name' => strtolower( $plural ),
+    );
+}
+
+/**
+ * Register Log Entries CPT
+ */
+function badgeos_register_log_post_type() {
+
+    // Register Log Entries CPT
+    register_post_type( 'badgeos-log-entry', array(
+        'labels'             => array(
+            'name'               => __( 'Log Entries', 'badgeos' ),
+            'singular_name'      => __( 'Log Entry', 'badgeos' ),
+            'add_new'            => __( 'Add New', 'badgeos' ),
+            'add_new_item'       => __( 'Add New Log Entry', 'badgeos' ),
+            'edit_item'          => __( 'Edit Log Entry', 'badgeos' ),
+            'new_item'           => __( 'New Log Entry', 'badgeos' ),
+            'all_items'          => __( 'Log Entries', 'badgeos' ),
+            'view_item'          => __( 'View Log Entries', 'badgeos' ),
+            'search_items'       => __( 'Search Log Entries', 'badgeos' ),
+            'not_found'          => __( 'No Log Entries found', 'badgeos' ),
+            'not_found_in_trash' => __( 'No Log Entries found in Trash', 'badgeos' ),
+            'parent_item_colon'  => '',
+            'menu_name'          => __( 'Log Entries', 'badgeos' )
+        ),
+        'public'             => false,
+        'publicly_queryable' => false,
+        'show_ui'            => current_user_can( badgeos_get_manager_capability() ),
+        'show_in_menu'       => 'badgeos_badgeos',
+        'show_in_nav_menus'  => false,
+        'query_var'          => true,
+        'rewrite'            => array( 'slug' => 'log' ),
+        'capability_type'    => 'post',
+        'has_archive'        => false,
+        'hierarchical'       => false,
+        'menu_position'      => null,
+        'supports'           => array( 'title', 'editor', 'author', 'comments' ),
+    ) );
+}
 
 /**
  * Register our various achievement types for use in the rules engine
@@ -195,16 +161,17 @@ function badgeos_register_achievement_type( $achievement_name_singular = '', $ac
 }
 
 /**
- * Register each of our Achivement Types as CPTs
+ * Register each of our achievement Types as CPTs
  *
  * @since  1.0.0
  * @return void
  */
 function badgeos_register_achievement_type_cpt() {
 
+    $badgeos_settings = ( $exists = get_option( 'badgeos_settings' ) ) ? $exists : array();
 	// Grab all of our achievement type posts
 	$achievement_types = get_posts( array(
-		'post_type'      =>	'achievement-type',
+		'post_type'      =>	$badgeos_settings['achievement_main_post_type'],
 		'posts_per_page' =>	-1,
 	) );
 
