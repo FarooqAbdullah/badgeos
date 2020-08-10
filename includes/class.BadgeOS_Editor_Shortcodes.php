@@ -18,8 +18,8 @@ class BadgeOS_Editor_Shortcodes {
 		$this->directory_url  = plugin_dir_url( dirname( __FILE__ ) );
 		$this->shortcodes     = badgeos_get_shortcodes();
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 99 );
 		add_action( 'media_buttons', array( $this, 'render_button'), 20 );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ), 99 );
 		add_action( 'admin_footer',  array( $this, 'render_modal' ) );
 
 	}
@@ -30,12 +30,21 @@ class BadgeOS_Editor_Shortcodes {
 	 * @since  1.4.0
 	 */
 	public function admin_scripts() {
-		$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		wp_enqueue_script( 'badgeos-select2', $this->directory_url . "js/select2/select2$min.js", array( 'jquery' ), '', true );
-		wp_enqueue_script( 'badgeos-shortcodes-embed', $this->directory_url . "js/badgeos-shortcode-embed$min.js", array( 'jquery', 'badgeos-select2' ), '', true );
+        global $pagenow;
+	    $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+        wp_enqueue_script( 'badgeos-select2', $this->directory_url . "js/select2/select2$min.js", array( 'jquery' ), '', true );
+        wp_enqueue_style( 'badgeos-select2-css', $this->directory_url . 'js/select2/select2.css' );
+
+        wp_enqueue_style( 'badgeos-juqery-ui-css', $this->directory_url . 'css/jquery-ui.css' );
+        wp_enqueue_style( 'badgeos-juqery-autocomplete-css', $this->directory_url . 'css/autocomplete.css' );
+		
+        if ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) {
+            wp_enqueue_script( 'badgeos-jquery-ui-js' );
+            wp_enqueue_script( 'badgeos-shortcodes-embed', $this->directory_url . "js/badgeos-shortcode-embed$min.js", array( 'jquery' ), '', true );
+		}
+		
 		wp_localize_script( 'badgeos-shortcodes-embed', 'badgeos_shortcode_embed_messages', $this->get_localized_text() );
-		wp_enqueue_style( 'badgeos-select2-css', $this->directory_url . 'js/select2/select2.css' );
-	}
+    }
 
 	/**
 	 * Get localized JS text.
@@ -45,11 +54,24 @@ class BadgeOS_Editor_Shortcodes {
 	 * @return array Array of translated text
 	 */
 	public function get_localized_text() {
-		return array(
-			'id_placeholder'          => __( 'Select a Post', 'badgeos' ),
+
+        $badgeos_settings = ( $exists = get_option( 'badgeos_settings' ) ) ? $exists : array();
+        $achievement_types = get_posts( array(
+            'post_type'      =>	$badgeos_settings['achievement_main_post_type'],
+            'posts_per_page' =>	-1,
+        ) );
+
+        $select_options = '';
+        foreach( $achievement_types as $type ) {
+            $select_options .= '<option value="'.$type->post_name.'">'.$type->post_title.'</option>';
+        }
+
+        return array(
+            'id_placeholder'          => __( 'Select a Post', 'badgeos' ),
 			'id_multiple_placeholder' => __( 'Select Post(s)', 'badgeos' ),
 			'user_placeholder'        => __( 'Select a user', 'badgeos' ),
 			'post_type_placeholder'   => __( 'Default: All', 'badgeos' ),
+            'achievements_select_options'   => $select_options
 		);
 	}
 
@@ -59,7 +81,9 @@ class BadgeOS_Editor_Shortcodes {
 	 * @since 1.4.0
 	 */
 	public function render_button() {
-		echo '<a id="insert_badgeos_shortcodes" href="#TB_inline?width=660&height=800&inlineId=select_badgeos_shortcode" class="thickbox button badgeos_media_link" data-width="800">' . __( 'Add BadgeOS Shortcode', 'badgeos' ) . '</a>';
+
+        $min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+        echo '<a id="insert_badgeos_shortcodes" href="#TB_inline?width=660&height=800&inlineId=select_badgeos_shortcode" class="thickbox button badgeos_media_link" data-width="800">' . __( 'Add BadgeOS Shortcode', 'badgeos' ) . '</a>';
 	}
 
 	/**
@@ -138,12 +162,28 @@ class BadgeOS_Editor_Shortcodes {
 	}
 
 	private function get_text_input( $args = array() ) {
-		return sprintf(
-			'
-			<div class="badgeos_input alignleft">
+        $name_field = $args['attribute']['slug'];
+        $name_field_type = 'normal';
+        $hidden_field = '';
+        if( isset( $args['attribute']['autocomplete_name'] ) && !empty( $args['attribute']['autocomplete_name'] ) ) {
+            $name_field = $args['attribute']['autocomplete_name'];
+            $name_field_type = 'autocomplete';
+            $hidden_field = sprintf(
+                '<input class="%1$s %2$s" id="%1$s" name="%3$s" type="hidden" data-slug="%3$s" data-shortcode="%4$s" value="%5$s" />',
+                $args['shortcode']->slug . '_' . $name_field,
+                $args['attribute']['type'],
+                $name_field,
+                $args['shortcode']->slug,
+                $args['attribute']['default']
+            );
+        }
+
+        return $hidden_field.sprintf(
+                '<div class="badgeos_input alignleft">
+
 				<label for="%1$s">%2$s</label>
 				<br/>
-				<input class="%1$s %4$s" id="%1$s" name="%5$s" type="text" data-slug="%5$s" data-shortcode="%6$s" value="%7$s" />
+				<input class="%1$s %4$s" id="%1$s" name="%5$s" type="text" data-fieldname="%8$s" data-type="%9$s" data-slug="%5$s" data-shortcode="%6$s" value="%7$s" />
 				<p class="description">%3$s</p>
 			</div>
 			',
@@ -153,8 +193,10 @@ class BadgeOS_Editor_Shortcodes {
 			$args['attribute']['type'],
 			$args['attribute']['slug'],
 			$args['shortcode']->slug,
-			$args['attribute']['default']
-		);
+            $args['attribute']['default'],
+            $args['shortcode']->slug . '_' . $name_field,
+            $name_field_type
+            );
 	}
 
 	private function get_select_input( $args = array() ) {
